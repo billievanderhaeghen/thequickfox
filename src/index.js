@@ -1,4 +1,5 @@
 require("./js/script.js");
+require("./css/style.css");
 
 import * as p5 from "p5";
 import "p5/lib/addons/p5.dom";
@@ -9,13 +10,18 @@ console.log("dag vrienden, welkom in de index.js");
 let video;
 let features;
 let knn;
-let labelP;
-let requiredP;
+// let labelP;
+// let requiredP;
 let ready = false;
 let label = 'nothing';
 let required = 'fox';
-let foxImg;
+let requiredTwo = 'dog';
+let result;
+let circular;
+let circularBold;
+let qImg;
 let isResultRequired = false;
+let timer = 0;
 
 const modelReady = () => {
   console.log('model ready!');
@@ -32,13 +38,11 @@ const goClassify = () => {
       if (result.label === required) {
         let isResultRequired = true;
         console.log("goe bezig");
-        requiredP.html('goe bezig!');
       } else {
         let isResultRequired = false;
-        requiredP.html('show me: ' + required);
       }
       label = result.label;
-      labelP.html('Result: ' + result.label);
+      console.log('Result: ' + result.label);
       goClassify();
     }
   });
@@ -81,22 +85,34 @@ const saveFile = (name, data) => {
 };
 
 const s = sk => {
+
+  sk.preload = () => {
+    circular = sk.loadFont('assets/font/C.ttf');
+    circularBold = sk.loadFont('assets/font/C_b.ttf');
+  }
+
   sk.setup = () => {
-      sk.createCanvas(320,240);
-      foxImg = sk.createImg('assets/fox.png', imageReady);
+      sk.createCanvas(window.innerWidth, window.innerHeight);
+      qImg = sk.createImg('assets/img/shapes/quick-fox.png', imageReady);
+      //qImg.translate(window.innerWidth / 2, window.innerHeight / 2)
+      qImg.hide();
       video = sk.createCapture(sk.VIDEO);
-      video.size(320,240);
+      video.size(sk.width,sk.height/2);
       video.style("transform", "scale(-1,1)");
+      video.hide();
       features = ml5.featureExtractor('MobileNet', modelReady);
       knn = ml5.KNNClassifier();
-      labelP = sk.createP('need training data');
-      labelP.style('font-size', '32pt');
-      requiredP = sk.createP('show me: ' + required);
-      requiredP.style('font-size', '32pt');
+      // labelP = sk.createP('need training data');
+      // labelP.style('font-size', '32pt');
+      // requiredP = sk.createP('show me: ' + required);
+      // requiredP.style('font-size', '32pt');
   };
 
   const imageReady = () => {
-    sk.image(foxImg, 0, 0, 320, 240);
+    sk.background('#262326')
+    sk.imageMode(sk.CENTER);
+    sk.image(qImg, 0, 120, 300, 300);
+    //sk.translate(window.innerWidth / 2, window.innerHeight / 2)
   }
 
   sk.keyPressed = () => {
@@ -119,21 +135,47 @@ const s = sk => {
     }
   }
 
+  // const RoundFinishSucces = () => {
+  //   sk.background('#FCEE21');
+  //   sk.textSize(100);
+  //   sk.textAlign(sk.CENTER);
+  //   sk.text('+ 5',)
+  // }
+
   sk.draw = () => {
-    // sk.background(0);
-    // if (isResultRequired = true) {
-    //   sk.background(0,255,0);
-    // };
-    // sk.fill(255);
-    // sk.textSize(20);
-    // sk.text(required, 10, sk.height - 10);
+    sk.translate(sk.width / 2, sk.height / 2);
+    sk.textFont(circularBold);
+    sk.textSize(30);
+    sk.textAlign(sk.CENTER);
+    sk.fill('#ffffff');
+    sk.text('Show your ' + required, 0, sk.height / 2 - sk.height / 8);
 
-
-    //image(video, 0, 0);
+    sk.imageMode(sk.CORNER);
+    sk.image(video, - sk.width/2, - sk.height/2);
     if (!ready && knn.getNumLabels() > 0) {
       goClassify();
       ready = true;
     }
+    if (knn.getNumLabels() > 0) {
+      if (label === required) {
+        sk.clear();
+        sk.background('#FCEE21');
+        sk.imageMode(sk.CORNER);
+        sk.image(video, - sk.width/2, - sk.height/2);
+        sk.textSize(100);
+        sk.fill(0);
+        sk.text('+ 5', 0, sk.height / 4);
+      } else {
+        sk.clear();
+        sk.background('#FF1C00');
+        sk.imageMode(sk.CORNER);
+        sk.image(video, - sk.width/2, - sk.height/2);
+        sk.textSize(50);
+        sk.fill('#ffffff');
+        sk.text('Not quite right', 0, sk.height / 4);
+      }
+    }
+
   };
 }
 
