@@ -2,7 +2,7 @@
   "name": "thequickfox",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/billievanderhaeghen/origamio.git",
+  "repository": "https://github.com/billievanderhaeghen/thequickfox.git",
   "author": "<billie.vanderhaeghen@student.howest.be>",
   "license": "MIT",
   "devDependencies": {

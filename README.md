@@ -1,4 +1,4 @@
-# The Quick Fox
+# The quick fox
 
 A multiplayer mobile game controlled by your camera and your abilities to make origami.
 
