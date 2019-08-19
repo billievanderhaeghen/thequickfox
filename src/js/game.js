@@ -11,6 +11,7 @@ let label = 'nothing';
 let requiredArray;
 let required;
 let requiredUrl;
+let requiredImg;
 let randomShapeForRound;
 let circular;
 let circularBold;
@@ -417,56 +418,33 @@ const s = sk => {
     finishedButton.style('font-weight', 'bold');
     finishedButton.style('font-size', '25pt');
     finishedButton.size(sk.width * 0.8, 70);
-    finishedButton.mousePressed(changeScene);
+    finishedButton.mousePressed(shapeCheckSetUp);
 
   };
 
-  const changeScene = () => {
-    if (scene === "shapegive") {
-      scene = "shapecheck";
-      if (scene === "shapecheck") {
-        sk.clear();
-        sk.fill(black);
-        //sk.rect(0, sk.height / 2, sk.width, sk.height / 2);
-        //finishedButton.style("display", "none");
-        finishedButton.remove();
-        video = sk.createCapture(sk.VIDEO);
-        video.size(sk.width,sk.height/2);
-        video.style("transform", "scale(-1,1)");
-        video.hide();
-        return
-      }
-    }
-    if (scene === "shapecheck") {
-      scene = "shape";
-      console.log("ik werk maar de 2de keer dat ik deze functie uitvoer");
-      if (isResultRequired = true) {
-        score = score + 5;
-        console.log('Score ' + score);
-        shapeGive();
-        return
-      }
-      if (isResultRequired = false) {
-        score = score + 0;
-        console.log('Score ' + score);
-        console.log('niet juist');
-        shapeGive();
-        return
-      }
-    }
-  };
+  const shapeCheckSetUp = () => {
 
-  const shape = () => {
+    scene = "shapecheck";
+
     sk.clear();
-  }
+    sk.fill(black);
+    finishedButton.remove();
+    video = sk.createCapture(sk.VIDEO);
+    video.size(sk.width,sk.height/2);
+    video.style("transform", "scale(-1,1)");
+    video.hide();
+
+    requiredImg =  sk.loadImage(requiredUrl);
+  };
 
   const shapeCheck = () => {
     sk.clear();
     sk.background(black);
 
+    sk.translate(0, 0);
     sk.imageMode(sk.CENTER);
-    //change to image of given shape
-    sk.image(quImage, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
+
+    sk.image(requiredImg, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
 
     sk.translate(sk.width / 2, sk.height / 2);
     sk.textFont(circularBold);
@@ -493,16 +471,6 @@ const s = sk => {
             shapeSuccess();
             return
           }
-          // sk.clear();
-          // sk.background(yellow);
-          // sk.imageMode(sk.CORNER);
-          // sk.image(video, - sk.width/2, - sk.height/2);
-          // sk.textSize(100);
-          // sk.fill(0);
-          // sk.text('+ 5', 0, sk.height / 4);
-          // isResultRequired = true;
-          // setTimeout(changeScene, 1000);
-          // return
         } else {
           checkShapeFailCounter++;
           console.log(checkShapeFailCounter);
@@ -510,16 +478,6 @@ const s = sk => {
             shapeFail();
             return
           }
-          // sk.clear();
-          // sk.background(red);
-          // sk.imageMode(sk.CORNER);
-          // sk.image(video, - sk.width/2, - sk.height/2);
-          // sk.textSize(50);
-          // sk.fill('#ffffff');
-          // sk.text('Not quite right', 0, sk.height / 4);
-          // isResultRequired = false;
-          // setTimeout(changeScene, 1000);
-          // return
         }
       }
     }
@@ -595,14 +553,12 @@ const s = sk => {
 
 
   sk.touchStarted = () => {
-    //sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
 
     if (scene === "gamemenu") {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
         trainZoneButtonPressed = true;
       }
 
-      //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 170, sk.width * 0.9, 60);
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200,sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = true;
       }
@@ -610,7 +566,6 @@ const s = sk => {
     }
 
     if (scene === "trainingzonedetail") {
-      //sk.rect(0, 40, 90, 60);
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
         trainingZone();
 
@@ -620,8 +575,6 @@ const s = sk => {
 
     if (scene === "trainingzone") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        console.log("back to menu");
-        //trainingZone();
         gameMenu();
       }
     }
@@ -678,7 +631,6 @@ const s = sk => {
     if (scene === "shapecheck") {
       // shapecheck needs to be in the draw function for the video capture
       shapeCheck();
-      console.log(isResultRequired);
     }
 
     if (scene === "trainingzonedetail") {
