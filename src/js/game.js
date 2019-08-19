@@ -33,6 +33,8 @@ let score;
 let trainingDetail;
 let trainingDetailImg;
 let trainButtonPressed= false;
+let trainZoneButtonPressed = false;
+let startGameButtonPressed = false;
 
 const shapes = [
   ["t-shirt", "t-shirt"],
@@ -125,6 +127,7 @@ const s = sk => {
     circular = sk.loadFont('assets/font/C.otf');
     circularBold = sk.loadFont('assets/font/C_b.otf');
     quImage = sk.loadImage('assets/img/shapes/quick-fox.png');
+    logo = sk.loadImage('assets/img/tqf-logo.png');
   }
 
   sk.setup = () => {
@@ -146,16 +149,88 @@ const s = sk => {
 
       //shapeGive();
 
-      trainingZone();
+      //trainingZone();
+
+      //gameMenu();
+
+      scene = "gamemenu";
 
       features = ml5.featureExtractor('MobileNet', modelReady);
       knn = ml5.KNNClassifier();
   };
 
+  const gameMenu = () => {
+
+    sk.resizeCanvas(window.innerWidth, window.innerHeight);
+
+    scene = "gamemenu";
+
+    sk.clear();
+    sk.background(black);
+
+    sk.imageMode(sk.CENTER);
+
+    sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08);
+    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
+
+    sk.textAlign(sk.CENTER);
+    sk.textFont(circular);
+
+    //trainzonebutton
+    if (!trainZoneButtonPressed) {
+      sk.fill('#ffffff');
+    } else {
+      sk.fill((yellow));
+      //setTimeout(trainZoneButtonPressed = false, 5000);
+    }
+    sk.textFont(circularBold);
+    //sk.fill('#ffffff');
+    sk.stroke(black);
+    sk.rectMode(sk.CENTER);
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+    sk.fill(black);
+    sk.stroke(black);
+    sk.noStroke();
+    sk.triangle(
+      sk.width*0.95, sk.height - (sk.height / 16) - 30,
+      sk.width*0.95 - 30, sk.height - (sk.height / 16) - 30,
+      sk.width*0.95, sk.height - (sk.height / 16)
+    );
+    sk.fill(yellow);
+    sk.noStroke();
+    sk.triangle(
+      sk.width*0.95 - 30, sk.height - (sk.height / 16),
+      sk.width*0.95 - 30, sk.height - (sk.height / 16) - 30,
+      sk.width*0.95, sk.height - (sk.height / 16)
+    );
+
+
+    let buttonText = 'TRAIN THE QUICK FOX';
+    sk.fill(0);
+    sk.textSize(25);
+    sk.text(buttonText, sk.width / 2, sk.height - (sk.height / 16) + 7);
+
+    sk.fill(255);
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+
+    //playbutton
+    //sk.fill(yellow);
+    if (!startGameButtonPressed) {
+      sk.fill(yellow);
+    } else {
+      sk.fill((255));
+      //setTimeout(trainZoneButtonPressed = false, 5000);
+    }
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 170, sk.width * 0.9, 60);
+    sk.fill(0)
+    sk.text('START GAME', sk.width / 2, sk.height - (sk.height / 16) - 163)
+
+  }
+
   sk.windowResized = () => {
-    console.log("resized");
+    //console.log("resized");
     //sk.resizeCanvas(window.innerWidth, window.innerHeight);
-    trainingZone();
+    //trainingZone();
   }
 
   const trainingZone = () => {
@@ -167,13 +242,13 @@ const s = sk => {
     // header
 
     //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
-    logo = 'assets/img/tqf-logo.png';
     quickfox = 'assets/img/shapes/quick-fox.png';
     sk.imageMode(sk.CENTER);
     // 1/4th of innerHeight
-    sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
+    //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
+    sk.image(logo, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.loadImage(quickfox, img => {sk.image(img, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)});
+    sk.image(quImage, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
 
     //instruction button
     sk.rectMode(sk.CENTER);
@@ -464,28 +539,64 @@ const s = sk => {
     }
   }
 
+  sk.touchEnded = () => {
+    if (scene === "gamemenu") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        setTimeout(trainingZone(), 200);
+        trainZoneButtonPressed = false;
+      }
+
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200,sk.height - (sk.height / 16) - 140 ){
+        startGameButtonPressed = false;
+        shapeGive();
+      }
+    }
+
+
+  }
+
 
   sk.touchStarted = () => {
     //sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
 
+    if (scene === "gamemenu") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        trainZoneButtonPressed = true;
+      }
+
+      //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 170, sk.width * 0.9, 60);
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200,sk.height - (sk.height / 16) - 140 ){
+        startGameButtonPressed = true;
+      }
+
+    }
+
     if (scene === "trainingzonedetail") {
       //sk.rect(0, 40, 90, 60);
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        console.log("back");
         trainingZone();
-        console.log(video);
+
+        //stop video capture
       }
     }
 
-    // if (scene === "trainingzonedetail") {
-    //   const logits = features.infer(video);
-    //   if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
-    //     console.log("train");
-    //     trainButtonPressed= true;
-    //     knn.addExample(logits, shapes[trainingDetail][1]);
-    //     //save(knn, 'model.json');
-    //   }
-    // }
+    if (scene === "trainingzone") {
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        console.log("back to menu");
+        //trainingZone();
+        gameMenu();
+      }
+    }
+
+    if (scene === "trainingzonedetail") {
+      const logits = features.infer(video);
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        console.log("train");
+        trainButtonPressed= true;
+        knn.addExample(logits, shapes[trainingDetail][1]);
+        //save(knn, 'model.json');
+      }
+    }
 
     if (scene === "trainingzone") {
       for (var i = 0; i < shapes.length; i++) {
@@ -521,6 +632,10 @@ const s = sk => {
   }
 
   sk.draw = () => {
+
+    if (scene === "gamemenu") {
+      gameMenu();
+    }
 
     if (scene === "shapecheck") {
       // shapecheck needs to be in the draw function for the video capture
