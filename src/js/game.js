@@ -5,33 +5,36 @@ import * as ml5 from "ml5";
 let video;
 let features;
 let knn;
-// let labelP;
-// let requiredP;
+
 let ready = false;
 let label = 'nothing';
 let requiredArray;
 let required;
 let requiredUrl;
 let randomShapeForRound;
-let requiredTwo = 'dog';
-let result;
 let circular;
 let circularBold;
 let quImage;
 let trainListImages = [];
 let isResultRequired;
 let logo;
-let quickfox;
 let finishedButton;
+
+let checkShapeSuccessCounter;
+let checkShapeFailCounter;
+
+let trainingDetail;
+let trainingDetailImg;
+
 let yellow;
 let red;
 let black;
 let gray;
 let lightGray;
+
 let scene;
 let score;
-let trainingDetail;
-let trainingDetailImg;
+
 let trainButtonPressed= false;
 let trainZoneButtonPressed = false;
 let startGameButtonPressed = false;
@@ -242,7 +245,6 @@ const s = sk => {
     // header
 
     //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
-    quickfox = 'assets/img/shapes/quick-fox.png';
     sk.imageMode(sk.CENTER);
     // 1/4th of innerHeight
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
@@ -383,6 +385,9 @@ const s = sk => {
     required = requiredArray[1];
     requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
 
+    checkShapeSuccessCounter = 0;
+    checkShapeFailCounter = 0;
+
     //layout
     sk.clear();
     sk.background(black);
@@ -390,7 +395,6 @@ const s = sk => {
     sk.imageMode(sk.CENTER);
 
     sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
-    //sk.image(quImage, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7);
 
     sk.textFont(circularBold);
     sk.textSize(35);
@@ -457,10 +461,11 @@ const s = sk => {
   }
 
   const shapeCheck = () => {
-    //sk.clear();
+    sk.clear();
     sk.background(black);
 
     sk.imageMode(sk.CENTER);
+    //change to image of given shape
     sk.image(quImage, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
 
     sk.translate(sk.width / 2, sk.height / 2);
@@ -482,49 +487,82 @@ const s = sk => {
         console.log("try to aim your camera to your origami creation");
       } else {
         if (label === required) {
-          sk.clear();
-          sk.background(yellow);
-          sk.imageMode(sk.CORNER);
-          sk.image(video, - sk.width/2, - sk.height/2);
-          sk.textSize(100);
-          sk.fill(0);
-          sk.text('+ 5', 0, sk.height / 4);
-          isResultRequired = true;
-          setTimeout(changeScene, 1000);
-          return
+          checkShapeSuccessCounter++;
+          console.log(checkShapeSuccessCounter);
+          if (checkShapeSuccessCounter > 60) {
+            shapeSuccess();
+            return
+          }
+          // sk.clear();
+          // sk.background(yellow);
+          // sk.imageMode(sk.CORNER);
+          // sk.image(video, - sk.width/2, - sk.height/2);
+          // sk.textSize(100);
+          // sk.fill(0);
+          // sk.text('+ 5', 0, sk.height / 4);
+          // isResultRequired = true;
+          // setTimeout(changeScene, 1000);
+          // return
         } else {
-          sk.clear();
-          sk.background(red);
-          sk.imageMode(sk.CORNER);
-          sk.image(video, - sk.width/2, - sk.height/2);
-          sk.textSize(50);
-          sk.fill('#ffffff');
-          sk.text('Not quite right', 0, sk.height / 4);
-          isResultRequired = false;
-          setTimeout(changeScene, 1000);
-          return
+          checkShapeFailCounter++;
+          console.log(checkShapeFailCounter);
+          if (checkShapeFailCounter > 60) {
+            shapeFail();
+            return
+          }
+          // sk.clear();
+          // sk.background(red);
+          // sk.imageMode(sk.CORNER);
+          // sk.image(video, - sk.width/2, - sk.height/2);
+          // sk.textSize(50);
+          // sk.fill('#ffffff');
+          // sk.text('Not quite right', 0, sk.height / 4);
+          // isResultRequired = false;
+          // setTimeout(changeScene, 1000);
+          // return
         }
       }
     }
   }
 
-  const SuccessCheck = () => {
+  const shapeSuccess = () => {
+    checkShapeSuccessCounter = 0;
+    checkShapeFailCounter = 0;
+    scene = "shapesuccess";
+    score = score + 5;
+    console.log("score: " + score);
+    sk.clear();
 
+    sk.background(yellow);
+    sk.imageMode(sk.CORNER);
+    sk.image(video, - sk.width/2, - sk.height/2);
+    sk.textSize(100);
+    sk.fill(0);
+    sk.text('+ 5', 0, sk.height / 4);
+    //isResultRequired = true;
+    setTimeout(shapeGive, 3000);
+  }
+
+  const shapeFail = () => {
+    checkShapeSuccessCounter = 0;
+    checkShapeFailCounter = 0;
+    scene = "shapefail";
+    console.log("score: " + score);
+    sk.clear();
+    sk.background(red);
+    sk.imageMode(sk.CORNER);
+    sk.image(video, - sk.width/2, - sk.height/2);
+    sk.textSize(50);
+    sk.fill('#ffffff');
+    sk.text('Not quite right', 0, sk.height / 4);
+    //isResultRequired = false;
+    setTimeout(shapeGive, 3000);
   }
 
   sk.keyPressed = () => {
     if (scene === "shapecheck" && knn.getNumLabels() > 0) {
       const logits = features.infer(video);
-      if (sk.key == 'd') {
-        knn.addExample(logits, 'dog');
-        console.log('dog');
-      } else if (sk.key == 'f') {
-        knn.addExample(logits, 'fox');
-        console.log('fox');
-      } else if (sk.key == 't') {
-        knn.addExample(logits, 'triangle');
-        console.log('triangle');
-      } else if (sk.key == 'e') {
+      if (sk.key == 'e') {
         knn.addExample(logits, 'empty');
         console.log('empty');
       } else if (sk.key == 's') {
