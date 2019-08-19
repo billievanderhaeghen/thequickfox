@@ -32,35 +32,36 @@ let scene;
 let score;
 let trainingDetail;
 let trainingDetailImg;
+let trainButtonPressed= false;
 
 const shapes = [
   ["t-shirt", "t-shirt"],
   ["heart", "heart"],
   ["elephant", "elephant"],
-  ["quick-fox", "fox"],
+  ["quick-fox", "quick fox"],
   //["unicorn", "unicorn"],
   ["ice-cream", "ice cream"],
   ["crab", "crab"],
   ["killer-whale", "killer whale"],
   ["bird", "bird"],
   ["rectangle", "rectangle"],
-  ["walrus", "walrus"],
+  //["walrus", "walrus"],
   //["ninja-star", "ninja star"],
-  ["fish", "fish"],
+  //["fish", "fish"],
   ["owl", "owl"],
-  ["x", "x"],
-  ["jiggly-worm", "jiggly worm"],
-  ["mouse", "mouse"],
-  ["penguin", "penguin"],
-  ["snake", "snake"],
-  ["v", "v"],
+  //["x", "x"],
+  //["jiggly-worm", "jiggly worm"],
+  //["mouse", "mouse"],
+  //["penguin", "penguin"],
+  //["snake", "snake"],
+  //["v", "v"],
   ["lazy-dog", "lazy dog"],
-  ["airplane", "airplane"],
+  //["airplane", "airplane"],
   ["zen-triangle", "zen triangle"],
-  ["yacht", "yacht"],
+  //["yacht", "yacht"],
   //["dinosaur", "dinosaur"]
-  ["other-fish", "other fish"],
-  ["gentle-cactus", "gentle cactus"]
+  //["other-fish", "other fish"],
+  //["gentle-cactus", "gentle cactus"]
 ];
 
 const modelReady = () => {
@@ -76,7 +77,7 @@ const goClassify = () => {
       console.error(error);
     } else {
       label = result.label;
-      //console.log('Result: ' + result.label);
+      console.log('Result: ' + result.label);
       goClassify();
     }
   });
@@ -174,12 +175,33 @@ const s = sk => {
     // 1/8th of innerHeight
     sk.loadImage(quickfox, img => {sk.image(img, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)});
 
+    //instruction button
+    sk.rectMode(sk.CENTER);
+    sk.noStroke();
+    sk.fill('#ffffff');
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+    sk.fill(black);
+    sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
+    sk.fill(yellow);
+    sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
     sk.textSize(25);
     sk.fill(yellow);
     // 0.3105 of innerHeight
     sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.207);
+
+    //back button
+    sk.fill('#ffffff');
+    sk.rectMode(sk.CORNER);
+    sk.rect(0, 40, 90, 60);
+    sk.fill(black);
+    sk.triangle(90,40, 90,60, 70,40);
+    sk.fill(yellow);
+    sk.triangle(70,60, 90,60, 70,40);
+    sk.fill(0);
+    sk.text('Back', 42, 80);
 
     //show all shapes
     for (var i = 0; i < shapes.length; i++) {
@@ -208,6 +230,11 @@ const s = sk => {
     trainingDetail = detail;
     trainingDetailImg = sk.loadImage('assets/img/shapes/' + shapes[trainingDetail][0] + '.png');
 
+    video = sk.createCapture(sk.VIDEO);
+    video.size(sk.width,sk.height/2);
+    video.style("transform", "scale(-1,1)");
+    video.hide();
+
     scene = "trainingzonedetail";
 
   }
@@ -234,6 +261,40 @@ const s = sk => {
     sk.fill(yellow);
     // 0.3105 of innerHeight
     sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.3105);
+
+    //back button
+    sk.fill('#ffffff');
+    sk.rectMode(sk.CORNER);
+    sk.rect(0, 40, 90, 60);
+    sk.fill(black);
+    sk.triangle(90,40, 90,60, 70,40);
+    sk.fill(yellow);
+    sk.triangle(70,60, 90,60, 70,40);
+    sk.fill(0);
+    sk.text('Back', 42, 80);
+
+    //trainbutton
+    if (!trainButtonPressed) {
+      sk.fill(yellow);
+    } else {
+      sk.fill(('#ffffff'));
+      setTimeout(trainButtonPressed = false, 200);
+    }
+    sk.rectMode(sk.CENTER);
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+
+    let buttonText = 'TRAIN YOUR ' + shapes[trainingDetail][1].toUpperCase();
+    sk.fill(0);
+    sk.textSize(20);
+    sk.text(buttonText, sk.width / 2, sk.height - (sk.height / 16) + 5);
+
+    sk.imageMode(sk.CORNER);
+    sk.image(video, 0, sk.height / 3);
+
+    if (!ready && knn.getNumLabels() > 0) {
+      goClassify();
+      ready = true;
+    }
 
   }
 
@@ -396,10 +457,36 @@ const s = sk => {
         //knn.save('model.json');
       }
     }
+    if (scene === "trainingzonedetail" && knn.getNumLabels() > 0) {
+      if (sk.key == 's') {
+        save(knn, 'model.json');
+      }
+    }
   }
 
 
   sk.touchStarted = () => {
+    //sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+
+    if (scene === "trainingzonedetail") {
+      //sk.rect(0, 40, 90, 60);
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        console.log("back");
+        trainingZone();
+        console.log(video);
+      }
+    }
+
+    // if (scene === "trainingzonedetail") {
+    //   const logits = features.infer(video);
+    //   if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+    //     console.log("train");
+    //     trainButtonPressed= true;
+    //     knn.addExample(logits, shapes[trainingDetail][1]);
+    //     //save(knn, 'model.json');
+    //   }
+    // }
+
     if (scene === "trainingzone") {
       for (var i = 0; i < shapes.length; i++) {
         sk.fill(lightGray);
@@ -429,70 +516,11 @@ const s = sk => {
 
         }
       }
-    } else {
-      console.log("🦊");
-    }
+    };
+
   }
 
   sk.draw = () => {
-
-    // if (scene = "trainingzone") {
-    //   //console.log("x" + sk.mouseX + "y" + sk.mouseY);
-    //   for (var i = 0; i < shapes.length; i++) {
-    //     //trainListImages[i] = 'assets/img/shapes/' + shapes[i][0] + '.png';
-    //
-    //     sk.fill(lightGray);
-    //     sk.noStroke();
-    //     sk.rectMode(sk.CENTER);
-    //
-    //     let remainder = i%3;
-    //     let divided = i / 3;
-    //     let shapeSize = sk.width / 4;
-    //     let border = sk.width / 16;
-    //     let trainImage;
-    //     if (remainder == 0) {
-    //       //check if hovering over first row shape
-    //       if (
-    //         sk.mouseX > (sk.width / 5 - (shapeSize / 2)) &&
-    //         sk.mouseX < (sk.width / 5 + (shapeSize / 2)) &&
-    //         sk.mouseY > ((sk.height / 3.65) + ((shapeSize + border) * divided) - (shapeSize / 2)) &&
-    //         sk.mouseY < ((sk.height / 3.65) + ((shapeSize + border) * divided) + (shapeSize / 2))) {
-    //           //console.log(trainListImages[i]);
-    //           let trainShape = sk.rect(sk.width / 5, (sk.height / 3.65) + ((shapeSize + border) * divided), shapeSize, shapeSize );
-    //           trainImage = sk.loadImage(trainListImages[i], img => {
-    //             sk.image(
-    //                 img,
-    //                 sk.width / 5,
-    //                 (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)),
-    //                 shapeSize,
-    //                 shapeSize
-    //             )
-    //           });
-    //           //console.log(trainImage);
-    //           // if (sk.rect.mousePressed) {
-    //           //   console.log(trainListImages[i]);
-    //           // }
-    //       }
-    //       //first row
-    //       //sk.rect(sk.width / 5, (sk.height / 3.65) + ((shapeSize + border) * divided), shapeSize, shapeSize );
-    //       //sk.loadImage(trainListImages[i], img => {sk.image(img, sk.width / 5, (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)), shapeSize, shapeSize )});
-    //     }
-    //
-    //     console.log(trainImage);
-    //
-    //     if (remainder == 1) {
-    //       //second row
-    //       //sk.rect(sk.width / 2, (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)), shapeSize, shapeSize );
-    //       //sk.loadImage(trainListImages[i], img => {sk.image(img, sk.width / 2, (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)), shapeSize, shapeSize )});
-    //     }
-    //
-    //     if (remainder == 2) {
-    //       //third row
-    //       //sk.rect(sk.width * (4/5), (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)), shapeSize, shapeSize );
-    //       //sk.loadImage(trainListImages[i], img => {sk.image(img, sk.width * (4/5), (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided)), shapeSize, shapeSize )});
-    //     }
-    //   }
-    // }
 
     if (scene === "shapecheck") {
       // shapecheck needs to be in the draw function for the video capture
@@ -501,6 +529,7 @@ const s = sk => {
     }
 
     if (scene === "trainingzonedetail") {
+      // drawin
       drawTrainingZoneDetail();
     }
 
