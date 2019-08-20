@@ -39,6 +39,8 @@ let score;
 let trainButtonPressed= false;
 let trainZoneButtonPressed = false;
 let startGameButtonPressed = false;
+let finishButtonPressed = false;
+let backButtonPressed = false;
 
 const shapes = [
   ["t-shirt", "t-shirt"],
@@ -214,10 +216,12 @@ const s = sk => {
     sk.textSize(25);
     sk.text(buttonText, sk.width / 2, sk.height - (sk.height / 16) + 7);
 
+    //join button
+
     sk.fill(255);
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
 
-    //playbutton
+    //start button
     //sk.fill(yellow);
     if (!startGameButtonPressed) {
       sk.fill(yellow);
@@ -271,15 +275,20 @@ const s = sk => {
     sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.207);
 
     //back button
-    sk.fill('#ffffff');
-    sk.rectMode(sk.CORNER);
-    sk.rect(0, 40, 90, 60);
-    sk.fill(black);
-    sk.triangle(90,40, 90,60, 70,40);
-    sk.fill(yellow);
-    sk.triangle(70,60, 90,60, 70,40);
-    sk.fill(0);
-    sk.text('Back', 42, 80);
+    // if (!backButtonPressed) {
+    //   sk.fill('#ffffff');
+    // } else {
+    //   sk.fill(yellow);
+    // }
+    // sk.rectMode(sk.CORNER);
+    // sk.rect(0, 40, 90, 60);
+    // sk.fill(black);
+    // sk.triangle(90,40, 90,60, 70,40);
+    // sk.fill(yellow);
+    // sk.triangle(70,60, 90,60, 70,40);
+    // sk.fill(0);
+    // sk.text('Back', 42, 80);
+    backButton();
 
     //show all shapes
     for (var i = 0; i < shapes.length; i++) {
@@ -299,6 +308,23 @@ const s = sk => {
       let trainShape = sk.rect(xPos, yPos, shapeSize, shapeSize);
       let trainImage = sk.loadImage(trainListImages[i], img => {sk.image(img, xPos, yPos, shapeSize, shapeSize)});
     }
+  }
+
+  const backButton = () => {
+    //back button
+    if (!backButtonPressed) {
+      sk.fill('#ffffff');
+    } else {
+      sk.fill(yellow);
+    }
+    sk.rectMode(sk.CORNER);
+    sk.rect(0, 40, 90, 60);
+    sk.fill(black);
+    sk.triangle(90,40, 90,60, 70,40);
+    sk.fill(yellow);
+    sk.triangle(70,60, 90,60, 70,40);
+    sk.fill(0);
+    sk.text('Back', 42, 80);
   }
 
   const trainingZoneDetail = (detail) => {
@@ -341,7 +367,11 @@ const s = sk => {
     sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.3105);
 
     //back button
-    sk.fill('#ffffff');
+    if (!backButtonPressed) {
+      sk.fill('#ffffff');
+    } else {
+      sk.fill(yellow);
+    }
     sk.rectMode(sk.CORNER);
     sk.rect(0, 40, 90, 60);
     sk.fill(black);
@@ -350,6 +380,8 @@ const s = sk => {
     sk.triangle(70,60, 90,60, 70,40);
     sk.fill(0);
     sk.text('Back', 42, 80);
+
+    //backButton();
 
     //trainbutton
     if (!trainButtonPressed) {
@@ -376,18 +408,22 @@ const s = sk => {
 
   }
 
-  const shapeGive = () => {
+  const shapeGiveSetup = () => {
 
-    scene = "shapegive";
-
-    //get random shape for scene
     randomShapeForRound = shapes[Math.floor(Math.random() * shapes.length)];
     requiredArray = randomShapeForRound;
     required = requiredArray[1];
     requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
+    requiredImg =  sk.loadImage(requiredUrl);
 
     checkShapeSuccessCounter = 0;
     checkShapeFailCounter = 0;
+
+    scene = "shapegive";
+
+  }
+
+  const shapeGive = () => {
 
     //layout
     sk.clear();
@@ -395,7 +431,8 @@ const s = sk => {
     sk.translate(sk.width - sk.width, sk.height - sk.height);
     sk.imageMode(sk.CENTER);
 
-    sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
+    //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
+    sk.image(requiredImg, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7);
 
     sk.textFont(circularBold);
     sk.textSize(35);
@@ -410,15 +447,15 @@ const s = sk => {
     }
 
     //finish button
-    finishedButton = sk.createButton("I'M FINISHED");
-    finishedButton.position(sk.width * 0.1, sk.height * 0.65);
-    finishedButton.style('background-color', yellow);
-    finishedButton.style('border', 'none');
-    finishedButton.style('font-family', 'Circular Pro');
-    finishedButton.style('font-weight', 'bold');
-    finishedButton.style('font-size', '25pt');
-    finishedButton.size(sk.width * 0.8, 70);
-    finishedButton.mousePressed(shapeCheckSetUp);
+    sk.textSize(25);
+    if (!finishButtonPressed) {
+      sk.fill(yellow);
+    } else {
+      sk.fill((255));
+    }
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+    sk.fill(0)
+    sk.text("I'M FINISHED", sk.width / 2, sk.height - (sk.height / 16) - 78);
 
   };
 
@@ -428,13 +465,12 @@ const s = sk => {
 
     sk.clear();
     sk.fill(black);
-    finishedButton.remove();
+
     video = sk.createCapture(sk.VIDEO);
     video.size(sk.width,sk.height/2);
     video.style("transform", "scale(-1,1)");
     video.hide();
 
-    requiredImg =  sk.loadImage(requiredUrl);
   };
 
   const shapeCheck = () => {
@@ -542,9 +578,30 @@ const s = sk => {
         trainZoneButtonPressed = false;
       }
 
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200,sk.height - (sk.height / 16) - 140 ){
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200 && sk.mouseY < sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = false;
-        shapeGive();
+        shapeGiveSetup();
+      }
+    }
+
+    if (scene === "shapegive") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
+        finishButtonPressed = false;
+      }
+    }
+
+    if (scene === "trainingzonedetail") {
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        trainingZone();
+        backButtonPressed = false;
+        //stop video capture
+      }
+    }
+
+    if (scene === "trainingzone") {
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        gameMenu();
+        backButtonPressed = false;
       }
     }
 
@@ -565,17 +622,26 @@ const s = sk => {
 
     }
 
+    if (scene === "shapegive") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
+        finishButtonPressed = true;
+        //go to check
+        shapeCheckSetUp();
+      }
+    }
+
     if (scene === "trainingzonedetail") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        trainingZone();
-
+        //trainingZone();
+        backButtonPressed = true;
         //stop video capture
       }
     }
 
     if (scene === "trainingzone") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        gameMenu();
+        //gameMenu();
+        backButtonPressed = true;
       }
     }
 
@@ -628,9 +694,17 @@ const s = sk => {
       gameMenu();
     }
 
+    if (scene === "shapegive") {
+      shapeGive();
+    }
+
     if (scene === "shapecheck") {
       // shapecheck needs to be in the draw function for the video capture
       shapeCheck();
+    }
+
+    if (scene === "trainingzone") {
+      backButton();
     }
 
     if (scene === "trainingzonedetail") {
