@@ -535,6 +535,8 @@ const s = sk => {
     sk.text('+ 5', 0, sk.height / 4);
     //isResultRequired = true;
     setTimeout(shapeGive, 3000);
+
+    //stop video capture
   }
 
   const shapeFail = () => {
@@ -551,6 +553,8 @@ const s = sk => {
     sk.text('Not quite right', 0, sk.height / 4);
     //isResultRequired = false;
     setTimeout(shapeGive, 3000);
+
+    //stop video capture
   }
 
   sk.keyPressed = () => {
@@ -625,16 +629,13 @@ const s = sk => {
     if (scene === "shapegive") {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
         finishButtonPressed = true;
-        //go to check
         shapeCheckSetUp();
       }
     }
 
     if (scene === "trainingzonedetail") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        //trainingZone();
         backButtonPressed = true;
-        //stop video capture
       }
     }
 
