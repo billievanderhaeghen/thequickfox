@@ -29,7 +29,9 @@ let trainingDetail;
 let trainingDetailImg;
 
 let yellow;
+let yellowTransparent;
 let red;
+let redTransparent;
 let black;
 let gray;
 let darkGray;
@@ -79,7 +81,7 @@ const shapes = [
 ];
 
 
-let myId;
+let myId = "";
 let targetId = false;
 
 socket.on('connectionUrl', socketId => {
@@ -98,10 +100,11 @@ socket.on(`startGame`, id => {
 
 const $input = document.createElement('input');
 const $submit = document.createElement('input');
+const $gameIntro = document.createElement('div');
 $input.setAttribute('type', 'text');
 $input.setAttribute('name', 'inputfield');
 $submit.setAttribute('type', 'submit');
-$submit.setAttribute('value', 'submit');
+$submit.setAttribute('value', 'JOIN GAME');
 const $body = document.querySelector('body');
 // $body.appendChild($input);
 // $body.appendChild($submit);
@@ -183,6 +186,8 @@ const s = sk => {
 
       yellow = sk.color(252, 238, 33);
       red = sk.color(255, 28, 0);
+      yellowTransparent = sk.color(252, 238, 33, .8);
+      redTransparent = sk.color(255, 28, 0, .8);
       black = '#262326';
       gray = '#4F4C4F';
       darkGray = '#312E31';
@@ -202,17 +207,15 @@ const s = sk => {
       features = ml5.featureExtractor('MobileNet', modelReady);
       knn = ml5.KNNClassifier();
 
-      // video = sk.createCapture({
-      //   audio: false,
-      //   video: {
-      //     facingMode: "environment"
-      //   }
-      // });
-      video = sk.createCapture(sk.VIDEO);
-      video.size(sk.width,sk.height/2);
-      video.style("transform", "scale(-1,1)");
-      video.hide();
+      $gameIntro.innerHTML = "A multiplayer <span>mobile</span> game controlled by your <span>camera</span> and your abilities to make <span>origami</span>. Grab a friend, some <span>white square paper</span>, and a pen, and try to be faster than your opponent or you’ll be <span>the lazy dog</span>."
+      $gameIntro.setAttribute('class', 'gameintro');
+      //$body.appendChild($gameIntro);
+
   };
+
+  const gameMenuSetup = () => {
+
+  }
 
   const gameMenu = () => {
 
@@ -227,8 +230,6 @@ const s = sk => {
 
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08);
     sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
-
-    sk.image(video, 0,0);
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circular);
@@ -272,7 +273,8 @@ const s = sk => {
     sk.fill(255);
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
     sk.fill(0);
-    sk.text(myId, sk.width / 2, sk.height - (sk.height / 16) - 78);
+    //console.log(myId);
+    sk.text('JOIN GAME', sk.width / 2, sk.height - (sk.height / 16) - 78);
 
     //start button
     //sk.fill(yellow);
@@ -325,7 +327,7 @@ const s = sk => {
     sk.textSize(25);
     sk.fill(yellow);
     // 0.3105 of innerHeight
-    sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.207);
+    sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.22);
 
     backButton();
 
@@ -342,7 +344,7 @@ const s = sk => {
       let shapeSize = sk.width / 4;
       let border = sk.width / 16;
       let xPos = sk.width * (1/5 + (1.5/5 * remainder));
-      let yPos = (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided));
+      let yPos = (sk.height * 0.3) + ((shapeSize + border) * Math.floor(divided));
 
       let trainShape = sk.rect(xPos, yPos, shapeSize, shapeSize);
       let trainImage = sk.loadImage(trainListImages[i], img => {sk.image(img, xPos, yPos, shapeSize, shapeSize)});
@@ -445,6 +447,88 @@ const s = sk => {
       ready = true;
     }
 
+  }
+
+  const startJoinSetup = () => {
+    const $field = document.createElement('div');
+    $field.setAttribute('class', 'field');
+    $submit.setAttribute('class', 'submit');
+    //$field.setAttribute('width', window.innerWidth * 0.9);
+    // $code.innerHTML = myId;
+    // $body.appendChild($code);
+    $input.setAttribute('class', 'textfield');
+
+    $field.appendChild($input);
+    $field.appendChild($submit);
+    $body.appendChild($field);
+    //$body.appendChild($submit);
+
+    //console.log(myId);
+    scene = "joingame";
+  }
+
+  const joinGame = () => {
+    sk.clear();
+    sk.background(black);
+    console.log("start game");
+
+    //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
+    sk.imageMode(sk.CENTER);
+    // 1/4th of innerHeight
+    //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
+    sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
+    // 1/8th of innerHeight
+    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+
+    sk.textAlign(sk.CENTER);
+    sk.textFont(circularBold);
+    sk.textSize(25);
+    sk.fill(yellow);
+    // 0.3105 of innerHeight
+    sk.text('JOIN GAME', sk.width / 2, sk.height * 0.33);
+
+    sk.textFont(circular);
+    sk.textSize(16);
+    sk.fill(255);
+    sk.text('Type the code your opponent has shared', sk.width / 2, sk.height * 0.54 - 50);
+  }
+
+  const startGameSetup = () => {
+    const $code = document.createElement('div');
+    $code.setAttribute('class', 'code');
+    $code.setAttribute('width', window.innerWidth * 0.9);
+    $code.innerHTML = myId;
+    $body.appendChild($code);
+    console.log(myId);
+    scene = "startgame";
+  }
+
+  const startGame = () => {
+    sk.clear();
+    sk.background(black);
+    console.log("start game");
+
+    //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
+    sk.imageMode(sk.CENTER);
+    // 1/4th of innerHeight
+    //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
+    sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
+    // 1/8th of innerHeight
+    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+
+    sk.textAlign(sk.CENTER);
+    sk.textFont(circularBold);
+    sk.textSize(25);
+    sk.fill(yellow);
+    // 0.3105 of innerHeight
+    sk.text('START GAME', sk.width / 2, sk.height * 0.33);
+
+    sk.textFont(circular);
+    sk.textSize(16);
+    sk.fill(255);
+    sk.text('Share this code with your opponent', sk.width / 2, sk.height * 0.54 + 60);
+    sk.fill(255);
+    sk.rect(sk.width / 2, sk.height * 0.54, sk.width * 0.9, 60);
   }
 
   const shapeGiveSetup = () => {
@@ -646,13 +730,16 @@ const s = sk => {
     sk.imageMode(sk.CORNER);
     sk.image(video, 0, 60);
 
-    showScores();
-
-    sk.textSize(50);
+    sk.fill(red);
+    sk.rectMode(sk.CORNER);
+    sk.rect(0,60, sk.width, sk.height - 60);
+    sk.textSize(30);
     sk.fill('#ffffff');
-    sk.text('Not quite right', sk.width / 2, sk.height * 0.77);
+    sk.text('Not quite right', sk.width / 2, sk.height / 2 + 30);
+
+    showScores();
     //isResultRequired = false;
-    setTimeout(shapeGive, 3000);
+    setTimeout(shapeGiveSetup, 3000);
 
     //stop video capture
   }
@@ -677,7 +764,10 @@ const s = sk => {
 
   sk.touchEnded = () => {
     if (scene === "gamemenu") {
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
+        sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
         setTimeout(trainingZone(), 200);
         trainZoneButtonPressed = false;
       }
@@ -687,13 +777,26 @@ const s = sk => {
         sk.mouseY > sk.height - (sk.height / 16) - 200 &&
         sk.mouseY < sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = false;
-        shapeGiveSetup();
+        //shapeGiveSetup();
+        startGameSetup();
+        //scene = "startgame";
+      }
+
+      //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
+        sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
+        //joinGameButtonPressed = false;
+        console.log("join");
+        startJoinSetup();
       }
     }
 
     if (scene === "shapegive") {
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 85 + 30 ){
         finishButtonPressed = false;
+        shapeCheckSetUp();
       }
     }
 
@@ -731,9 +834,9 @@ const s = sk => {
 
     //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
     if (scene === "shapegive") {
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 85 + 30 ){
         finishButtonPressed = true;
-        shapeCheckSetUp();
+        //shapeCheckSetUp();
       }
     }
 
@@ -794,6 +897,14 @@ const s = sk => {
   }
 
   sk.draw = () => {
+
+    if (scene === "startgame") {
+      startGame();
+    }
+
+    if (scene === "joingame") {
+      joinGame();
+    }
 
     if (scene === "gamemenu") {
       gameMenu();

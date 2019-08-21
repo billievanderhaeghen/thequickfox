@@ -1,7 +1,74 @@
 @import "./reset.css";
 
 body {
-  /* background-color: #262326; */
+  background-color: #262326;
+}
+
+.code {
+  position: fixed;
+  top: 52.4%;
+  width: 100%;
+  text-align: center;
+  font-family: Helvetica, Arial;
+  font-size: 1.5rem;
+  z-index: 10;
+}
+
+.gameintro {
+  position: fixed;
+  z-index: 10;
+  top: 32%;
+  padding-left: 7.5%;
+  color: white;
+  font-family: Helvetica;
+  width: 85%;
+  text-align: center;
+}
+
+span {
+  color: #FCEE21;
+}
+
+canvas {
+  display: block;
+}
+
+.textfield {
+  width: 90%;
+  height: 3rem;
+  font-size: 1.5rem;
+  font-family: Helvetica, Arial;
+  border: none;
+  text-align: center;
+  border-radius: 0;
+}
+
+.submit {
+  width: 90%;
+  height: 3rem;
+  display: inline-block;
+  border: none;
+  background-color: #FCEE21;
+  outline: none;
+  font-weight: 600;
+  font-size: 1.2rem;
+  font-family: Helvetica, Arial;
+  border-radius: 0;
+}
+
+.submit:focus {
+  background-color: white;
+}
+
+.field {
+  position: fixed;
+  width: 100%;
+  top: 50%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  height: 7rem;
+  justify-content: space-between;
 }
 
 /* h1 {
