@@ -32,10 +32,12 @@ let yellow;
 let red;
 let black;
 let gray;
+let darkGray;
 let lightGray;
 
 let scene;
 let score;
+let opponentScore;
 
 let trainButtonPressed= false;
 let trainZoneButtonPressed = false;
@@ -43,7 +45,7 @@ let startGameButtonPressed = false;
 let finishButtonPressed = false;
 let backButtonPressed = false;
 
-const socket = io('192.168.43.7:8081');
+const socket = io('http://192.168.43.7:8081');
 
 
 const shapes = [
@@ -101,8 +103,8 @@ $input.setAttribute('name', 'inputfield');
 $submit.setAttribute('type', 'submit');
 $submit.setAttribute('value', 'submit');
 const $body = document.querySelector('body');
-$body.appendChild($input);
-$body.appendChild($submit);
+// $body.appendChild($input);
+// $body.appendChild($submit);
 
 const submitTargetId = () => {
   //console.log($input.value);
@@ -183,10 +185,12 @@ const s = sk => {
       red = sk.color(255, 28, 0);
       black = '#262326';
       gray = '#4F4C4F';
+      darkGray = '#312E31';
       lightGray = '#706E70';
 
       //scene = "shapegive";
       score = 0;
+      opponentScore = 0;
 
       //set lines in comment to get a random shape
       // requiredArray = shapes[3];
@@ -260,7 +264,7 @@ const s = sk => {
 
     let buttonText = 'TRAIN THE QUICK FOX';
     sk.fill(0);
-    sk.textSize(25);
+    sk.textSize(20);
     sk.text(buttonText, sk.width / 2, sk.height - (sk.height / 16) + 7);
 
     //join button
@@ -456,6 +460,42 @@ const s = sk => {
 
     scene = "shapegive";
 
+    console.log(score);
+
+  }
+
+  const showScores = () => {
+    sk.translate(sk.width - sk.width, sk.height - sk.height);
+    // your score
+    sk.fill(darkGray);
+    sk.rectMode(sk.CORNER);
+    sk.rect(0, 0, sk.width / 2, 65);
+
+    // opponent score
+    sk.fill(gray);
+    sk.rect(sk.width / 2, 0, sk.width / 2, 65);
+
+    //if your score > opponent score = your score fill yellow, else fill white
+    //if your score = opponent score => both fill white
+    sk.fill(255);
+    sk.textFont(circular);
+
+    sk.textSize(12);
+    sk.text('you', sk.width / 4, 19);
+
+    sk.fill(255);
+    sk.text('opponent', sk.width * 0.75, 19);
+
+    sk.textFont(circularBold);
+    sk.textSize(29);
+
+    // your score
+    sk.fill(255);
+    sk.text(score, sk.width / 4, 45);
+
+    // opponent score
+    sk.fill(255);
+    sk.text(opponentScore, sk.width * 0.75, 45);
   }
 
   const shapeGive = () => {
@@ -463,22 +503,25 @@ const s = sk => {
     //layout
     sk.clear();
     sk.background(black);
+    showScores();
+
+    sk.rectMode(sk.CENTER);
     sk.translate(sk.width - sk.width, sk.height - sk.height);
     sk.imageMode(sk.CENTER);
 
     //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
-    sk.image(requiredImg, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7);
+    sk.image(requiredImg, sk.width / 2, sk.height / 3 + 22, sk.width * 0.65, sk.width * 0.65);
 
     sk.textFont(circularBold);
-    sk.textSize(35);
+    sk.textSize(30);
     sk.textAlign(sk.CENTER);
     sk.fill('#ffffff');
 
     //"make a" vs. "make an"
     if (required.charAt(0) === "a" ||required.charAt(0) === "e" ||required.charAt(0) === "i" ||required.charAt(0) === "o" ||required.charAt(0) === "u" ||required.charAt(0) === "x") {
-      sk.text('Make an ' + required, sk.width / 2, sk.height / 2 + 40);
+      sk.text('Make an ' + required, sk.width / 2, sk.height / 2 + 70);
     } else {
-      sk.text('Make a ' + required, sk.width / 2, sk.height / 2 + 40);
+      sk.text('Make a ' + required, sk.width / 2, sk.height / 2 + 70);
     }
 
     //finish button
@@ -501,14 +544,14 @@ const s = sk => {
     sk.clear();
     sk.fill(black);
 
-    video = sk.createCapture({
-      audio: false,
-      video: {
-        facingMode: "environment"
-      }
-    });
-    //video = sk.createCapture(sk.VIDEO);
-    video.size(sk.width,sk.height/2);
+    // video = sk.createCapture({
+    //   audio: false,
+    //   video: {
+    //     facingMode: "environment"
+    //   }
+    // });
+    video = sk.createCapture(sk.VIDEO);
+    video.size(sk.width,sk.height*0.6);
     video.style("transform", "scale(-1,1)");
     video.elt.setAttribute('playsinline', '');
     video.hide();
@@ -517,49 +560,53 @@ const s = sk => {
 
   const shapeCheck = () => {
     sk.clear();
-    // sk.background(black);
-    //
-    // sk.translate(0, 0);
-    // sk.imageMode(sk.CENTER);
-    //
-    // sk.image(requiredImg, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
-    //
-    // sk.translate(sk.width / 2, sk.height / 2);
-    // sk.textFont(circularBold);
-    // sk.textSize(30);
-    // sk.textAlign(sk.CENTER);
-    // sk.fill('#ffffff');
-    // sk.text('Show your ' + required, 0, sk.height / 2 - sk.height / 8);
-    //
+    sk.background(black);
+
     sk.translate(0, 0);
+
     sk.imageMode(sk.CORNER);
-    sk.image(video, 0, 0, sk.width, sk.height / 2);
-    //
-    // if (!ready && knn.getNumLabels() > 0) {
-    //   goClassify();
-    //   ready = true;
-    // }
-    // if (knn.getNumLabels() > 0) {
-    //   if (label === "empty") {
-    //     console.log("try to aim your camera to your origami creation");
-    //   } else {
-    //     if (label === required) {
-    //       checkShapeSuccessCounter++;
-    //       console.log(checkShapeSuccessCounter);
-    //       if (checkShapeSuccessCounter > 60) {
-    //         shapeSuccess();
-    //         return
-    //       }
-    //     } else {
-    //       checkShapeFailCounter++;
-    //       console.log(checkShapeFailCounter);
-    //       if (checkShapeFailCounter > 60) {
-    //         shapeFail();
-    //         return
-    //       }
-    //     }
-    //   }
-    // }
+    sk.image(video, 0, 60);
+
+    showScores();
+
+    sk.imageMode(sk.CENTER);
+
+    sk.image(requiredImg, sk.width / 2, sk.height * 0.72, sk.width * 0.4, sk.width * 0.4);
+
+    sk.translate(sk.width / 2, sk.height / 2);
+    sk.textFont(circularBold);
+    sk.textSize(30);
+    sk.textAlign(sk.CENTER);
+    sk.fill('#ffffff');
+    sk.text('Show your ' + required, 0, sk.height / 2 - sk.height / 8);
+
+    //sk.translate(0, 0);
+
+    if (!ready && knn.getNumLabels() > 0) {
+      goClassify();
+      ready = true;
+    }
+    if (knn.getNumLabels() > 0) {
+      if (label === "empty") {
+        console.log("try to aim your camera to your origami creation");
+      } else {
+        if (label === required) {
+          checkShapeSuccessCounter++;
+          console.log(checkShapeSuccessCounter);
+          if (checkShapeSuccessCounter > 60) {
+            shapeSuccess();
+            return
+          }
+        } else {
+          checkShapeFailCounter++;
+          console.log(checkShapeFailCounter);
+          if (checkShapeFailCounter > 60) {
+            shapeFail();
+            return
+          }
+        }
+      }
+    }
   }
 
   const shapeSuccess = () => {
@@ -571,13 +618,18 @@ const s = sk => {
     sk.clear();
 
     sk.background(yellow);
+    sk.translate(- sk.width / 2, - sk.height / 2);
+
     sk.imageMode(sk.CORNER);
-    sk.image(video, - sk.width/2, - sk.height/2);
+    sk.image(video, 0, 60);
+
+    showScores();
+
     sk.textSize(100);
     sk.fill(0);
-    sk.text('+ 5', 0, sk.height / 4);
+    sk.text('+ 5', sk.width / 2, sk.height * 0.77);
     //isResultRequired = true;
-    setTimeout(shapeGive, 3000);
+    //setTimeout(shapeGive, 3000);
 
     //stop video capture
   }
@@ -589,11 +641,16 @@ const s = sk => {
     console.log("score: " + score);
     sk.clear();
     sk.background(red);
+    sk.translate(- sk.width / 2, - sk.height / 2);
+
     sk.imageMode(sk.CORNER);
-    sk.image(video, - sk.width/2, - sk.height/2);
+    sk.image(video, 0, 60);
+
+    showScores();
+
     sk.textSize(50);
     sk.fill('#ffffff');
-    sk.text('Not quite right', 0, sk.height / 4);
+    sk.text('Not quite right', sk.width / 2, sk.height * 0.77);
     //isResultRequired = false;
     setTimeout(shapeGive, 3000);
 
@@ -672,6 +729,7 @@ const s = sk => {
 
     }
 
+    //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
     if (scene === "shapegive") {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 && sk.mouseY < sk.height - (sk.height / 16) - 25 ){
         finishButtonPressed = true;

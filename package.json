@@ -47,7 +47,7 @@
     "yalc": "^1.0.0-pre.33"
   },
   "scripts": {
-    "dev": "webpack-dev-server --host 0.0.0.0 --mode development",
+    "dev": "webpack-dev-server --https --host 0.0.0.0 --mode development",
     "prod": "rm -rf dist/ && ditto src/assets dist/assets && webpack --mode production",
     "start": "node server.js"
   },
