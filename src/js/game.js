@@ -1,6 +1,7 @@
 import * as p5 from "p5";
 import "p5/lib/addons/p5.dom";
 import * as ml5 from "ml5";
+import io from "socket.io-client";
 
 let video;
 let features;
@@ -42,6 +43,9 @@ let startGameButtonPressed = false;
 let finishButtonPressed = false;
 let backButtonPressed = false;
 
+const socket = io('192.168.43.7:8081');
+
+
 const shapes = [
   ["t-shirt", "t-shirt"],
   ["heart", "heart"],
@@ -71,6 +75,42 @@ const shapes = [
   //["other-fish", "other fish"],
   //["gentle-cactus", "gentle cactus"]
 ];
+
+
+let myId;
+let targetId = false;
+
+socket.on('connectionUrl', socketId => {
+  console.log("connection made");
+  console.log("socketid: " + socketId);
+  myId = socketId;
+})
+
+socket.on(`startGame`, id => {
+  if (!targetId) {
+    targetId = id;
+  }
+  document.write(myId + " " + targetId);
+  console.log(myId + " " + targetId);
+})
+
+const $input = document.createElement('input');
+const $submit = document.createElement('input');
+$input.setAttribute('type', 'text');
+$input.setAttribute('name', 'inputfield');
+$submit.setAttribute('type', 'submit');
+$submit.setAttribute('value', 'submit');
+const $body = document.querySelector('body');
+$body.appendChild($input);
+$body.appendChild($submit);
+
+const submitTargetId = () => {
+  //console.log($input.value);
+  targetId = $input.value;
+  socket.emit(`joinGame`, targetId, { myId: myId});
+}
+
+$submit.addEventListener("click", submitTargetId);
 
 const modelReady = () => {
   console.log('model ready!');
@@ -153,16 +193,21 @@ const s = sk => {
       // required = requiredArray[1];
       // requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
 
-      //shapeGive();
-
-      //trainingZone();
-
-      //gameMenu();
-
       scene = "gamemenu";
 
       features = ml5.featureExtractor('MobileNet', modelReady);
       knn = ml5.KNNClassifier();
+
+      // video = sk.createCapture({
+      //   audio: false,
+      //   video: {
+      //     facingMode: "environment"
+      //   }
+      // });
+      video = sk.createCapture(sk.VIDEO);
+      video.size(sk.width,sk.height/2);
+      video.style("transform", "scale(-1,1)");
+      video.hide();
   };
 
   const gameMenu = () => {
@@ -178,6 +223,8 @@ const s = sk => {
 
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08);
     sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
+
+    sk.image(video, 0,0);
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circular);
@@ -220,6 +267,8 @@ const s = sk => {
 
     sk.fill(255);
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+    sk.fill(0);
+    sk.text(myId, sk.width / 2, sk.height - (sk.height / 16) - 78);
 
     //start button
     //sk.fill(yellow);
@@ -274,20 +323,6 @@ const s = sk => {
     // 0.3105 of innerHeight
     sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.207);
 
-    //back button
-    // if (!backButtonPressed) {
-    //   sk.fill('#ffffff');
-    // } else {
-    //   sk.fill(yellow);
-    // }
-    // sk.rectMode(sk.CORNER);
-    // sk.rect(0, 40, 90, 60);
-    // sk.fill(black);
-    // sk.triangle(90,40, 90,60, 70,40);
-    // sk.fill(yellow);
-    // sk.triangle(70,60, 90,60, 70,40);
-    // sk.fill(0);
-    // sk.text('Back', 42, 80);
     backButton();
 
     //show all shapes
@@ -466,57 +501,65 @@ const s = sk => {
     sk.clear();
     sk.fill(black);
 
-    video = sk.createCapture(sk.VIDEO);
+    video = sk.createCapture({
+      audio: false,
+      video: {
+        facingMode: "environment"
+      }
+    });
+    //video = sk.createCapture(sk.VIDEO);
     video.size(sk.width,sk.height/2);
     video.style("transform", "scale(-1,1)");
+    video.elt.setAttribute('playsinline', '');
     video.hide();
-
+    console.log(video);
   };
 
   const shapeCheck = () => {
     sk.clear();
-    sk.background(black);
-
+    // sk.background(black);
+    //
+    // sk.translate(0, 0);
+    // sk.imageMode(sk.CENTER);
+    //
+    // sk.image(requiredImg, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
+    //
+    // sk.translate(sk.width / 2, sk.height / 2);
+    // sk.textFont(circularBold);
+    // sk.textSize(30);
+    // sk.textAlign(sk.CENTER);
+    // sk.fill('#ffffff');
+    // sk.text('Show your ' + required, 0, sk.height / 2 - sk.height / 8);
+    //
     sk.translate(0, 0);
-    sk.imageMode(sk.CENTER);
-
-    sk.image(requiredImg, sk.width / 2, sk.height * 0.68, sk.width * 0.6, sk.width * 0.6);
-
-    sk.translate(sk.width / 2, sk.height / 2);
-    sk.textFont(circularBold);
-    sk.textSize(30);
-    sk.textAlign(sk.CENTER);
-    sk.fill('#ffffff');
-    sk.text('Show your ' + required, 0, sk.height / 2 - sk.height / 8);
-
     sk.imageMode(sk.CORNER);
-    sk.image(video, - sk.width/2, - sk.height/2);
-
-    if (!ready && knn.getNumLabels() > 0) {
-      goClassify();
-      ready = true;
-    }
-    if (knn.getNumLabels() > 0) {
-      if (label === "empty") {
-        console.log("try to aim your camera to your origami creation");
-      } else {
-        if (label === required) {
-          checkShapeSuccessCounter++;
-          console.log(checkShapeSuccessCounter);
-          if (checkShapeSuccessCounter > 60) {
-            shapeSuccess();
-            return
-          }
-        } else {
-          checkShapeFailCounter++;
-          console.log(checkShapeFailCounter);
-          if (checkShapeFailCounter > 60) {
-            shapeFail();
-            return
-          }
-        }
-      }
-    }
+    sk.image(video, 0, 0, sk.width, sk.height / 2);
+    //
+    // if (!ready && knn.getNumLabels() > 0) {
+    //   goClassify();
+    //   ready = true;
+    // }
+    // if (knn.getNumLabels() > 0) {
+    //   if (label === "empty") {
+    //     console.log("try to aim your camera to your origami creation");
+    //   } else {
+    //     if (label === required) {
+    //       checkShapeSuccessCounter++;
+    //       console.log(checkShapeSuccessCounter);
+    //       if (checkShapeSuccessCounter > 60) {
+    //         shapeSuccess();
+    //         return
+    //       }
+    //     } else {
+    //       checkShapeFailCounter++;
+    //       console.log(checkShapeFailCounter);
+    //       if (checkShapeFailCounter > 60) {
+    //         shapeFail();
+    //         return
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   const shapeSuccess = () => {
@@ -582,7 +625,10 @@ const s = sk => {
         trainZoneButtonPressed = false;
       }
 
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200 && sk.mouseY < sk.height - (sk.height / 16) - 140 ){
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > sk.height - (sk.height / 16) - 200 &&
+        sk.mouseY < sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = false;
         shapeGiveSetup();
       }
@@ -620,7 +666,7 @@ const s = sk => {
         trainZoneButtonPressed = true;
       }
 
-      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200,sk.height - (sk.height / 16) - 140 ){
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 200 && sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = true;
       }
 

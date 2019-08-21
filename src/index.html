@@ -5,9 +5,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="assets/img/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
     <title>The quick fox</title>
   </head>
   <body>
+    <h1 id="connectionUrl" class="code"></h1>
+    <div id="bal" class="bal"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      {
+        const $connectionUrl = document.querySelector(`#connectionUrl`),
+              $bal = document.querySelector(`#bal`);
 
+        let socket;
+
+        const init = () => {
+          connect();
+        };
+
+        const connect = () => {
+          socket = io.connect(`/`);
+
+          socket.on(`connectionUrl`, connectionUrl => {
+            $connectionUrl.innerHTML = `${connectionUrl}/controller.html?<span class="orange">id=${socket.id}</span>`;
+          });
+
+          socket.on(`update`, data => {
+            $bal.style.left = `${100 * data.x}%`;
+            $bal.style.top = `${100 * data.y}%`;
+          });
+        };
+
+        init();
+      }
+    </script>
   </body>
 </html>
