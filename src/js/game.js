@@ -181,6 +181,18 @@ const saveFile = (name, data) => {
 const s = sk => {
 
   sk.preload = () => {
+    //sk.createCanvas(window.innerWidth, window.innerHeight);
+
+    const $p5Loading = document.getElementById('p5_loading');
+    let $loadingImg = document.createElement('img');
+    $loadingImg.setAttribute('src', 'assets/img/loader.gif');
+    $loadingImg.setAttribute('alt', 'loading');
+    $loadingImg.setAttribute('class', 'loadingimg');
+    $loadingImg.setAttribute('width', '400');
+    $loadingImg.setAttribute('height', '400');
+    $p5Loading.appendChild($loadingImg);
+    console.log($p5Loading);
+
     circular = sk.loadFont('assets/font/C.otf');
     circularBold = sk.loadFont('assets/font/C_b.otf');
     qImage = sk.loadImage('assets/img/shapes/quick-fox.png');
@@ -205,7 +217,7 @@ const s = sk => {
       red = sk.color(255, 28, 0);
       yellowTransparent = sk.color(252, 238, 33, .8);
       redTransparent = sk.color(255, 28, 0, .8);
-      black = '#262326';
+      black = '#332B33';
       gray = '#4F4C4F';
       darkGray = '#312E31';
       lightGray = '#706E70';
