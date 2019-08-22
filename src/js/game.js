@@ -13,6 +13,8 @@ let label = 'nothing';
 let requiredArray;
 let required;
 let requiredUrl;
+let requiredInstructionUrl;
+let requiredInstructionImg;
 let requiredImg;
 let randomShapeForRound;
 let circular;
@@ -29,6 +31,7 @@ let oImg;
 let rImg;
 let tImg;
 let zImg;
+let foxInstrImg;
 let trainListImages = [];
 let isResultRequired;
 let logo;
@@ -200,6 +203,7 @@ const s = sk => {
     circularBold = sk.loadFont('assets/font/C_b.otf');
     qImg = sk.loadImage('assets/img/shapes/quick-fox.png');
     logo = sk.loadImage('assets/img/tqf-logo.png');
+    foxInstrImg = sk.loadImage('assets/img/instructions/quick-fox-instructions.png');
     // bImg = sk.loadImage('assets/img/shapes/bird.png');
     // cImg = sk.loadImage('assets/img/shapes/crab.png');
     // eImg = sk.loadImage('assets/img/shapes/elephant.png');
@@ -660,6 +664,8 @@ const s = sk => {
     required = requiredArray[1];
     requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
     requiredImg =  sk.loadImage(requiredUrl);
+    requiredInstructionUrl = 'assets/img/instructions/' + requiredArray[0] + '-instructions.png';
+    requiredInstructionImg =  sk.loadImage(requiredInstructionUrl);
 
     checkShapeSuccessCounter = 0;
     checkShapeFailCounter = 0;
@@ -765,6 +771,41 @@ const s = sk => {
     sk.textSize(15);
     sk.text("- 2", sk.width * 0.88, sk.height - (sk.height / 16) - 15);
 
+
+  };
+
+  const shapeGiveInstructions = () => {
+
+    scene = "shapegiveinstructions";
+    //layout
+    sk.clear();
+    sk.background(black);
+    sk.noStroke();
+    showScores();
+
+    sk.rectMode(sk.CENTER);
+    sk.translate(sk.width - sk.width, sk.height - sk.height);
+    sk.imageMode(sk.CENTER);
+
+    sk.image(requiredInstructionImg, sk.width / 2, sk.height * 0.5, sk.width * 0.9, sk.width * 0.9 * 1242 / 1337);
+
+    sk.textFont(circularBold);
+    sk.textSize(30);
+    sk.textAlign(sk.CENTER);
+    sk.fill('#ffffff');
+
+    sk.text('Instructions', sk.width / 2, sk.height * 0.2);
+
+    //finish button
+    sk.textSize(20);
+    if (!finishButtonPressed) {
+      sk.fill(yellow);
+    } else {
+      sk.fill((255));
+    }
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 55, sk.width * 0.9, 60);
+    sk.fill(0)
+    sk.text("I'M FINISHED", sk.width / 2, sk.height - (sk.height / 16) - 48);
 
   };
 
@@ -958,6 +999,13 @@ const s = sk => {
       }
     }
 
+    if (scene === "shapegiveinstructions") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 55 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 55 + 30 ){
+        finishButtonPressed = false;
+        shapeCheckSetUp();
+      }
+    }
+
     if (scene === "shapegive") {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 85 + 30 ){
         finishButtonPressed = false;
@@ -969,6 +1017,7 @@ const s = sk => {
         sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
         sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
         instructionsButtonPressed = false;
+        scene = "shapegiveinstructions";
       }
     }
 
@@ -1040,6 +1089,12 @@ const s = sk => {
         joinGameButtonPressed = true;
       }
 
+    }
+
+    if (scene === "shapegiveinstructions") {
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 55 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 55 + 30 ){
+        finishButtonPressed = true;
+      }
     }
 
     //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
@@ -1127,6 +1182,10 @@ const s = sk => {
 
     if (scene === "shapegive") {
       shapeGive();
+    }
+
+    if (scene === "shapegiveinstructions") {
+      shapeGiveInstructions();
     }
 
     if (scene === "gameover") {
