@@ -17,7 +17,7 @@ let requiredImg;
 let randomShapeForRound;
 let circular;
 let circularBold;
-let qImage;
+let qImg;
 let bImg;
 let cImg;
 let eImg;
@@ -60,6 +60,9 @@ let startGameButtonPressed = false;
 let joinGameButtonPressed = false;
 let finishButtonPressed = false;
 let backButtonPressed = false;
+let instructionsButtonPressed = false;
+let playAgainButtonPressed = false;
+let goToMenuButtonPressed = false;
 
 const socket = io('http://192.168.43.7:8081');
 
@@ -195,19 +198,19 @@ const s = sk => {
 
     circular = sk.loadFont('assets/font/C.otf');
     circularBold = sk.loadFont('assets/font/C_b.otf');
-    qImage = sk.loadImage('assets/img/shapes/quick-fox.png');
+    qImg = sk.loadImage('assets/img/shapes/quick-fox.png');
     logo = sk.loadImage('assets/img/tqf-logo.png');
-    bImg = sk.loadImage('assets/img/shapes/bird.png');
-    cImg = sk.loadImage('assets/img/shapes/crab.png');
-    eImg = sk.loadImage('assets/img/shapes/elephant.png');
-    hImg = sk.loadImage('assets/img/shapes/heart.png');
-    iImg = sk.loadImage('assets/img/shapes/ice-cream.png');
-    kImg = sk.loadImage('assets/img/shapes/killer-whale.png');
+    // bImg = sk.loadImage('assets/img/shapes/bird.png');
+    // cImg = sk.loadImage('assets/img/shapes/crab.png');
+    // eImg = sk.loadImage('assets/img/shapes/elephant.png');
+    // hImg = sk.loadImage('assets/img/shapes/heart.png');
+    // iImg = sk.loadImage('assets/img/shapes/ice-cream.png');
+    // kImg = sk.loadImage('assets/img/shapes/killer-whale.png');
     lImg = sk.loadImage('assets/img/shapes/lazy-dog.png');
-    oImg = sk.loadImage('assets/img/shapes/owl.png');
-    rImg = sk.loadImage('assets/img/shapes/rectangle.png');
-    tImg = sk.loadImage('assets/img/shapes/t-shirt.png');
-    zImg = sk.loadImage('assets/img/shapes/zen-triangle.png');
+    // oImg = sk.loadImage('assets/img/shapes/owl.png');
+    // rImg = sk.loadImage('assets/img/shapes/rectangle.png');
+    // tImg = sk.loadImage('assets/img/shapes/t-shirt.png');
+    // zImg = sk.loadImage('assets/img/shapes/zen-triangle.png');
   }
 
   sk.setup = () => {
@@ -218,8 +221,8 @@ const s = sk => {
       yellowTransparent = sk.color(252, 238, 33, .8);
       redTransparent = sk.color(255, 28, 0, .8);
       black = '#332B33';
-      gray = '#4F4C4F';
-      darkGray = '#312E31';
+      gray = '#494049';
+      darkGray = '#3F363F';
       lightGray = '#706E70';
 
       //scene = "shapegive";
@@ -258,7 +261,7 @@ const s = sk => {
     sk.imageMode(sk.CENTER);
 
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08);
-    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
+    sk.image(qImg, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circular);
@@ -324,6 +327,69 @@ const s = sk => {
 
   }
 
+  const gameOver = () => {
+
+    sk.resizeCanvas(window.innerWidth, window.innerHeight);
+
+    scene = "gameover";
+
+    sk.clear();
+    sk.background(black);
+
+    sk.imageMode(sk.CENTER);
+
+    if (score > opponentScore) {
+      sk.image(qImg, sk.width / 2, sk.height * 0.52, sk.width * 0.5, sk.width * 0.5);
+      sk.fill(yellow);
+      sk.textSize(40);
+      sk.text('Congrats!', sk.width / 2, sk.height / 4);
+      sk.fill(255);
+      sk.textSize(20);
+      sk.text("You're the quick fox",  sk.width / 2, sk.height / 3.2);
+    } else {
+      sk.image(lImg, sk.width / 2, sk.height * 0.52, sk.width * 0.5, sk.width * 0.5);
+      sk.fill(yellow);
+      sk.textSize(40);
+      sk.text('Too bad...', sk.width / 2, sk.height / 4);
+      sk.fill(255);
+      sk.textSize(23);
+      sk.text("You're the lazy dog",  sk.width / 2, sk.height / 3.2);
+    }
+    sk.textAlign(sk.CENTER);
+    sk.textFont(circular);
+
+
+    sk.rectMode(sk.CENTER);
+    sk.textFont(circularBold);
+
+    //go to menu button
+    if(!goToMenuButtonPressed) {
+      startGameButtonPressed = false;
+      sk.fill(255);
+    } else {
+      startGameButtonPressed = false;
+      sk.fill(yellow);
+    }
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+    sk.fill(0);
+    //console.log(myId);
+    sk.text('GO TO MENU', sk.width / 2, sk.height - (sk.height / 16) + 7);
+
+    //play again button
+    if (!playAgainButtonPressed) {
+      sk.fill(yellow);
+    } else {
+      sk.fill((255));
+    }
+    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+    sk.fill(0)
+    sk.text('PLAY AGAIN', sk.width / 2, sk.height - (sk.height / 16) - 78);
+
+    sk.noStroke();
+    showScores();
+
+  }
+
   sk.windowResized = () => {
     //console.log("resized");
     //sk.resizeCanvas(window.innerWidth, window.innerHeight);
@@ -344,17 +410,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(qImage, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
-
-    //instruction button
-    sk.rectMode(sk.CENTER);
-    sk.noStroke();
-    sk.fill('#ffffff');
-    sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
-    sk.fill(black);
-    sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
-    sk.fill(yellow);
-    sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+    sk.image(qImg, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
@@ -513,7 +569,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImg, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
@@ -549,7 +605,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImg, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
@@ -675,7 +731,7 @@ const s = sk => {
     }
 
     //finish button
-    sk.textSize(25);
+    sk.textSize(20);
     if (!finishButtonPressed) {
       sk.fill(yellow);
     } else {
@@ -684,6 +740,31 @@ const s = sk => {
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
     sk.fill(0)
     sk.text("I'M FINISHED", sk.width / 2, sk.height - (sk.height / 16) - 78);
+
+    //instructions button
+    sk.rectMode(sk.CENTER);
+    sk.textFont(circularBold);
+    sk.noStroke();
+    if (!instructionsButtonPressed) {
+      sk.fill(255);
+      sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+      sk.fill(black);
+      sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
+      sk.fill(yellow);
+      sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+    } else {
+      sk.fill(yellow);
+      sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+      sk.fill(black);
+      sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
+      sk.fill(255);
+      sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+    }
+    sk.fill(0);
+    sk.text("SHOW INSTRUCTIONS", sk.width / 2, sk.height - (sk.height / 16) + 7);
+    sk.textSize(15);
+    sk.text("- 2", sk.width * 0.88, sk.height - (sk.height / 16) - 15);
+
 
   };
 
@@ -829,6 +910,22 @@ const s = sk => {
   }
 
   sk.touchEnded = () => {
+
+    if (scene === "gameover") {
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
+        sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
+        playAgainButtonPressed = false;
+      }
+
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        goToMenuButtonPressed = false;
+        setTimeout(gameMenu, 200);
+      }
+
+    }
+
     if (scene === "gamemenu") {
       if(sk.mouseX > sk.width * 0.1 &&
         sk.mouseX < sk.width * 0.9 &&
@@ -865,6 +962,13 @@ const s = sk => {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 && sk.mouseY < sk.height - (sk.height / 16) - 85 + 30 ){
         finishButtonPressed = false;
         shapeCheckSetUp();
+      }
+
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
+        sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        instructionsButtonPressed = false;
       }
     }
 
@@ -906,6 +1010,20 @@ const s = sk => {
 
   sk.touchStarted = () => {
 
+    if (scene === "gameover") {
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
+        sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
+        playAgainButtonPressed = true;
+      }
+
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        goToMenuButtonPressed = true;
+      }
+
+    }
+
     if (scene === "gamemenu") {
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
         trainZoneButtonPressed = true;
@@ -930,6 +1048,11 @@ const s = sk => {
         finishButtonPressed = true;
         //shapeCheckSetUp();
       }
+
+      if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        instructionsButtonPressed = true;
+      }
+
     }
 
     if (scene === "trainingzonedetail" || scene === "startgame" || scene === "joingame") {
@@ -1004,6 +1127,10 @@ const s = sk => {
 
     if (scene === "shapegive") {
       shapeGive();
+    }
+
+    if (scene === "gameover") {
+      gameOver();
     }
 
     if (scene === "shapecheck") {
