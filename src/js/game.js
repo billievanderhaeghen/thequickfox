@@ -9,6 +9,7 @@ let knn;
 
 let ready = false;
 let label = 'nothing';
+// let randomNumber;
 let requiredArray;
 let required;
 let requiredUrl;
@@ -16,7 +17,18 @@ let requiredImg;
 let randomShapeForRound;
 let circular;
 let circularBold;
-let quImage;
+let qImage;
+let bImg;
+let cImg;
+let eImg;
+let hImg;
+let iImg;
+let kImg;
+let lImg;
+let oImg;
+let rImg;
+let tImg;
+let zImg;
 let trainListImages = [];
 let isResultRequired;
 let logo;
@@ -41,9 +53,11 @@ let scene;
 let score;
 let opponentScore;
 
+let randomNumberGenerated = false;
 let trainButtonPressed= false;
 let trainZoneButtonPressed = false;
 let startGameButtonPressed = false;
+let joinGameButtonPressed = false;
 let finishButtonPressed = false;
 let backButtonPressed = false;
 
@@ -84,23 +98,14 @@ const shapes = [
 let myId = "";
 let targetId = false;
 
-socket.on('connectionUrl', socketId => {
-  console.log("connection made");
-  console.log("socketid: " + socketId);
-  myId = socketId;
-})
-
-socket.on(`startGame`, id => {
-  if (!targetId) {
-    targetId = id;
-  }
-  document.write(myId + " " + targetId);
-  console.log(myId + " " + targetId);
-})
+let isHost = false;
 
 const $input = document.createElement('input');
 const $submit = document.createElement('input');
 const $gameIntro = document.createElement('div');
+const $code = document.createElement('div');
+const $field = document.createElement('div');
+
 $input.setAttribute('type', 'text');
 $input.setAttribute('name', 'inputfield');
 $submit.setAttribute('type', 'submit');
@@ -113,6 +118,7 @@ const submitTargetId = () => {
   //console.log($input.value);
   targetId = $input.value;
   socket.emit(`joinGame`, targetId, { myId: myId});
+  //shapeGive();
 }
 
 $submit.addEventListener("click", submitTargetId);
@@ -177,8 +183,19 @@ const s = sk => {
   sk.preload = () => {
     circular = sk.loadFont('assets/font/C.otf');
     circularBold = sk.loadFont('assets/font/C_b.otf');
-    quImage = sk.loadImage('assets/img/shapes/quick-fox.png');
+    qImage = sk.loadImage('assets/img/shapes/quick-fox.png');
     logo = sk.loadImage('assets/img/tqf-logo.png');
+    bImg = sk.loadImage('assets/img/shapes/bird.png');
+    cImg = sk.loadImage('assets/img/shapes/crab.png');
+    eImg = sk.loadImage('assets/img/shapes/elephant.png');
+    hImg = sk.loadImage('assets/img/shapes/heart.png');
+    iImg = sk.loadImage('assets/img/shapes/ice-cream.png');
+    kImg = sk.loadImage('assets/img/shapes/killer-whale.png');
+    lImg = sk.loadImage('assets/img/shapes/lazy-dog.png');
+    oImg = sk.loadImage('assets/img/shapes/owl.png');
+    rImg = sk.loadImage('assets/img/shapes/rectangle.png');
+    tImg = sk.loadImage('assets/img/shapes/t-shirt.png');
+    zImg = sk.loadImage('assets/img/shapes/zen-triangle.png');
   }
 
   sk.setup = () => {
@@ -229,7 +246,7 @@ const s = sk => {
     sk.imageMode(sk.CENTER);
 
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08);
-    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
+    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circular);
@@ -239,7 +256,7 @@ const s = sk => {
       sk.fill('#ffffff');
     } else {
       sk.fill((yellow));
-      //setTimeout(trainZoneButtonPressed = false, 5000);
+      setTimeout(trainZoneButtonPressed = false, 5000);
     }
     sk.textFont(circularBold);
     //sk.fill('#ffffff');
@@ -270,7 +287,13 @@ const s = sk => {
 
     //join button
 
-    sk.fill(255);
+    if(!joinGameButtonPressed) {
+      startGameButtonPressed = false;
+      sk.fill(255);
+    } else {
+      startGameButtonPressed = false;
+      sk.fill(yellow);
+    }
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
     sk.fill(0);
     //console.log(myId);
@@ -282,7 +305,6 @@ const s = sk => {
       sk.fill(yellow);
     } else {
       sk.fill((255));
-      //setTimeout(trainZoneButtonPressed = false, 5000);
     }
     sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 170, sk.width * 0.9, 60);
     sk.fill(0)
@@ -310,7 +332,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(quImage, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImage, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
 
     //instruction button
     sk.rectMode(sk.CENTER);
@@ -353,6 +375,8 @@ const s = sk => {
 
   const backButton = () => {
     //back button
+    sk.textSize(25);
+    sk.textFont(circularBold);
     if (!backButtonPressed) {
       sk.fill('#ffffff');
     } else {
@@ -449,14 +473,14 @@ const s = sk => {
 
   }
 
-  const startJoinSetup = () => {
-    const $field = document.createElement('div');
+  const joinGameSetup = () => {
     $field.setAttribute('class', 'field');
     $submit.setAttribute('class', 'submit');
     //$field.setAttribute('width', window.innerWidth * 0.9);
     // $code.innerHTML = myId;
     // $body.appendChild($code);
     $input.setAttribute('class', 'textfield');
+    $input.setAttribute('placeholder', 'CODE');
 
     $field.appendChild($input);
     $field.appendChild($submit);
@@ -470,7 +494,6 @@ const s = sk => {
   const joinGame = () => {
     sk.clear();
     sk.background(black);
-    console.log("start game");
 
     //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
     sk.imageMode(sk.CENTER);
@@ -478,7 +501,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
@@ -491,10 +514,11 @@ const s = sk => {
     sk.textSize(16);
     sk.fill(255);
     sk.text('Type the code your opponent has shared', sk.width / 2, sk.height * 0.54 - 50);
+
+    backButton();
   }
 
   const startGameSetup = () => {
-    const $code = document.createElement('div');
     $code.setAttribute('class', 'code');
     $code.setAttribute('width', window.innerWidth * 0.9);
     $code.innerHTML = myId;
@@ -506,7 +530,6 @@ const s = sk => {
   const startGame = () => {
     sk.clear();
     sk.background(black);
-    console.log("start game");
 
     //sk.loadImage(requiredUrl, img => { sk.image(img, sk.width / 2, sk.height / 3, sk.width * 0.7, sk.width * 0.7)});
     sk.imageMode(sk.CENTER);
@@ -514,7 +537,7 @@ const s = sk => {
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
     sk.image(logo, sk.width / 2, sk.height / 4, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(quImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImage, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
@@ -528,12 +551,43 @@ const s = sk => {
     sk.fill(255);
     sk.text('Share this code with your opponent', sk.width / 2, sk.height * 0.54 + 60);
     sk.fill(255);
+    sk.rectMode(sk.CENTER);
     sk.rect(sk.width / 2, sk.height * 0.54, sk.width * 0.9, 60);
+
+    backButton();
   }
 
-  const shapeGiveSetup = () => {
+  socket.on('connectionUrl', socketId => {
+    console.log("connection made");
+    console.log("socketid: " + socketId);
+    myId = socketId;
+  })
 
-    randomShapeForRound = shapes[Math.floor(Math.random() * shapes.length)];
+  socket.on(`startGame`, id => {
+    if (!targetId) {
+      targetId = id;
+    }
+    //document.write(myId + " " + targetId);
+    console.log(myId + " " + targetId);
+    newRound();
+  })
+
+  const generateNumberForShape = () => Math.floor(Math.random() * shapes.length);
+
+  const newRound = () => {
+    if (isHost) {
+      const index = generateNumberForShape();
+      console.log(index);
+      shapeGiveSetup(index);
+
+      socket.emit(`newRound`, index, targetId);
+    }
+  }
+
+  const shapeGiveSetup = (number) => {
+    $body.removeChild($code);
+    console.log(number);
+    randomShapeForRound = shapes[number];
     requiredArray = randomShapeForRound;
     required = requiredArray[1];
     requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
@@ -768,7 +822,7 @@ const s = sk => {
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
         sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
-        setTimeout(trainingZone(), 200);
+        setTimeout(trainingZone(), 1000);
         trainZoneButtonPressed = false;
       }
 
@@ -779,6 +833,8 @@ const s = sk => {
         startGameButtonPressed = false;
         //shapeGiveSetup();
         startGameSetup();
+        isHost = true;
+        console.log("i am host");
         //scene = "startgame";
       }
 
@@ -787,9 +843,9 @@ const s = sk => {
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
         sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
-        //joinGameButtonPressed = false;
+        joinGameButtonPressed = false;
         console.log("join");
-        startJoinSetup();
+        joinGameSetup();
       }
     }
 
@@ -815,6 +871,23 @@ const s = sk => {
       }
     }
 
+    if (scene === "startgame") {
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        gameMenu();
+        backButtonPressed = false;
+        $body.removeChild($code);
+        //host is false
+        isHost = false;
+      }
+    }
+
+    if (scene === "joingame") {
+      if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
+        gameMenu();
+        backButtonPressed = false;
+        $body.removeChild($field);
+      }
+    }
 
   }
 
@@ -830,6 +903,13 @@ const s = sk => {
         startGameButtonPressed = true;
       }
 
+      if(sk.mouseX > sk.width * 0.1 &&
+        sk.mouseX < sk.width * 0.9 &&
+        sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
+        sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
+        joinGameButtonPressed = true;
+      }
+
     }
 
     //sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
@@ -840,7 +920,7 @@ const s = sk => {
       }
     }
 
-    if (scene === "trainingzonedetail") {
+    if (scene === "trainingzonedetail" || scene === "startgame" || scene === "joingame") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
         backButtonPressed = true;
       }
@@ -865,16 +945,13 @@ const s = sk => {
 
     if (scene === "trainingzone") {
       for (var i = 0; i < shapes.length; i++) {
-        sk.fill(lightGray);
-        sk.noStroke();
-        sk.rectMode(sk.CENTER);
 
         let remainder = i%3;
         let divided = i / 3;
         let shapeSize = sk.width / 4;
         let border = sk.width / 16;
         let xPos = sk.width * (1/5 + (1.5/5 * remainder));
-        let yPos = (sk.height / 3.65) + ((shapeSize + border) * Math.floor(divided));
+        let yPos = (sk.height * 0.3) + ((shapeSize + border) * Math.floor(divided));
 
         //check if mouseposition is on shape
         if (
@@ -884,9 +961,8 @@ const s = sk => {
           sk.mouseY < (yPos + (shapeSize / 2))
         ) {
             // style
-            let trainShape = sk.rect(xPos, yPos, shapeSize, shapeSize);
-            let trainImage = sk.loadImage(trainListImages[i], img => {sk.image(img, xPos, yPos, shapeSize, shapeSize)});
-
+            // let trainShape = sk.rect(xPos, yPos, shapeSize, shapeSize);
+            // let trainImage = sk.loadImage(trainListImages[i], img => {sk.image(img, xPos, yPos, shapeSize, shapeSize)});
 
             setTimeout(trainingZoneDetail, 100, i);
 
@@ -897,6 +973,10 @@ const s = sk => {
   }
 
   sk.draw = () => {
+
+    // if(!randomNumberGenerated) {
+    //   generateNumberForShape();
+    // }
 
     if (scene === "startgame") {
       startGame();

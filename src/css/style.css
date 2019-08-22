@@ -49,6 +49,7 @@ canvas {
   display: inline-block;
   border: none;
   background-color: #FCEE21;
+  color: black;
   outline: none;
   font-weight: 600;
   font-size: 1.2rem;
