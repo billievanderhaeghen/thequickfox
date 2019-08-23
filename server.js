@@ -22,20 +22,42 @@ io.on('connection', socket => {
 
   socket.on('joinGame', (targetId, data) => {
     // if the target user does not exist, ignore it
-    console.log('targetId' + targetId);
+    console.log('targetId: ' + targetId);
 
     if (!users[targetId]) {
       return;
     }
-    console.log('targetId' + targetId);
+    console.log('targetId: ' + targetId);
     // send an update to that particular socket
-    socket.to(targetId).emit('startGame', targetId);
-    socket.to(data.myId).emit('startGame', data.myId);
+    socket.to(targetId).emit('startGame', data.myId);
+    //socket.to(data.myId).emit('startGame', targetId);
   });
 
   // socket.on('startGame', () => {
   //   //some code code
   // })
+  socket.on('newRound', (index, targetId) => {
+    // if the target user does not exist, ignore it
+    console.log('index: ' + index);
+    if (!users[targetId]) {
+      return;
+    }
+    console.log('index: ' + index);
+    // send an update to that particular socket
+    socket.to(targetId).emit('newRound', index);
+  });
+
+  socket.on('roundDone', (ids) => {
+    // if the target user does not exist, ignore it
+
+    if (!users[ids.winner] && !users[ids.loser]) {
+      return;
+    }
+    console.log("round done");
+    // send an update to that particular socket
+    socket.to(ids.winner).emit('roundDone', true);
+    socket.to(ids.loser).emit('roundDone', false);
+  });
 
   socket.on('disconnect', () => {
     console.log('client disconnected');

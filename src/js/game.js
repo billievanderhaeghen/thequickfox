@@ -67,7 +67,7 @@ let instructionsButtonPressed = false;
 let playAgainButtonPressed = false;
 let goToMenuButtonPressed = false;
 
-const socket = io('http://192.168.43.7:8081');
+const socket = io('http://192.168.0.123:8081');
 
 
 const shapes = [
@@ -105,6 +105,9 @@ let myId = "";
 let targetId = false;
 
 let isHost = false;
+let isRoundDone = false;
+let isCodeDeleted = false;
+let isFieldDeleted = false;
 
 const $input = document.createElement('input');
 const $submit = document.createElement('input');
@@ -117,14 +120,10 @@ $input.setAttribute('name', 'inputfield');
 $submit.setAttribute('type', 'submit');
 $submit.setAttribute('value', 'JOIN GAME');
 const $body = document.querySelector('body');
-// $body.appendChild($input);
-// $body.appendChild($submit);
 
 const submitTargetId = () => {
-  //console.log($input.value);
   targetId = $input.value;
   socket.emit(`joinGame`, targetId, { myId: myId});
-  //shapeGive();
 }
 
 $submit.addEventListener("click", submitTargetId);
@@ -472,7 +471,7 @@ const s = sk => {
     trainingDetailImg = sk.loadImage('assets/img/shapes/' + shapes[trainingDetail][0] + '.png');
 
     video = sk.createCapture(sk.VIDEO);
-    video.size(sk.width,sk.height/2);
+    video.size(sk.width,sk.height);
     video.style("transform", "scale(-1,1)");
     video.hide();
 
@@ -484,6 +483,9 @@ const s = sk => {
 
     sk.clear();
     sk.background(black);
+
+    sk.imageMode(sk.CORNER);
+    sk.image(video, 0, 0, sk.width, sk.height);
 
     sk.imageMode(sk.CENTER);
     sk.image(trainingDetailImg, sk.width / 2, sk.height / 8, sk.width * 0.35, sk.width * 0.35);
@@ -535,8 +537,6 @@ const s = sk => {
     sk.textSize(20);
     sk.text(buttonText, sk.width / 2, sk.height - (sk.height / 16) + 5);
 
-    sk.imageMode(sk.CORNER);
-    sk.image(video, 0, sk.height / 3);
 
     if (!ready && knn.getNumLabels() > 0) {
       goClassify();
@@ -629,13 +629,15 @@ const s = sk => {
     backButton();
   }
 
-  socket.on('connectionUrl', socketId => {
+  socket.on(`connectionUrl`, socketId => {
     console.log("connection made");
     console.log("socketid: " + socketId);
     myId = socketId;
+
   })
 
   socket.on(`startGame`, id => {
+    console.log("startGame id: " + id);
     if (!targetId) {
       targetId = id;
     }
@@ -644,20 +646,63 @@ const s = sk => {
     newRound();
   })
 
+  socket.on(`newRound`, (index) => {
+    console.log(index);
+    shapeGiveSetup(index);
+  })
+
+  socket.on(`roundDone`, isWinner => {
+    addScore(isWinner);
+  });
+
+  const addScore = isWinner => {
+    isRoundDone = true;
+    console.log('winner' + isWinner);
+    if (isWinner) {
+      score = score + 5;
+    } else {
+      opponentScore = opponentScore + 5;
+    }
+    checkForGameover();
+  };
+
+  const checkForGameover = () => {
+    let maxScore = 5;
+    if (score < maxScore || opponentScore < maxScore) {
+      newRound();
+    } else {
+      console.log("game over");
+      gameOver();
+    }
+
+    // if (score >= maxScore || opponentScore >= maxScore){
+    //   gameOver();
+    // } else {
+    //
+    // }
+  };
+
   const generateNumberForShape = () => Math.floor(Math.random() * shapes.length);
 
   const newRound = () => {
     if (isHost) {
+      isRoundDone = false;
       const index = generateNumberForShape();
-      console.log(index);
+      //console.log(index);
       shapeGiveSetup(index);
-
+      console.log("newRound");
       socket.emit(`newRound`, index, targetId);
     }
   }
 
   const shapeGiveSetup = (number) => {
-    $body.removeChild($code);
+    if (isHost && !isCodeDeleted) {
+      $body.removeChild($code);
+      isCodeDeleted = true;
+    } else if (!isHost && !isFieldDeleted) {
+      $body.removeChild($field);
+      isFieldDeleted = true;
+    }
     console.log(number);
     randomShapeForRound = shapes[number];
     requiredArray = randomShapeForRound;
@@ -865,15 +910,30 @@ const s = sk => {
         if (label === required) {
           checkShapeSuccessCounter++;
           console.log(checkShapeSuccessCounter);
-          if (checkShapeSuccessCounter > 60) {
-            shapeSuccess();
-            return
+          if (checkShapeSuccessCounter > 1) {
+            if (checkShapeSuccessCounter > 30) {
+              sk.background(yellow);
+              sk.translate(- sk.width / 2, - sk.height / 2);
+
+              sk.fill(yellow);
+              sk.rectMode(sk.CORNER);
+              sk.rect(0,60, sk.width, sk.height - 60);
+              sk.textSize(100);
+              sk.fill('#ffffff');
+              sk.text('+ 5', sk.width / 2, sk.height / 2 + 30);
+              checkShapeFailCounter = 0;
+            }
+            if (checkShapeSuccessCounter > 40) {
+              shapeSuccess();
+            }
+            //return
           }
         } else {
           checkShapeFailCounter++;
           console.log(checkShapeFailCounter);
-          if (checkShapeFailCounter > 60) {
-            shapeFail();
+          if (checkShapeFailCounter > 30 ) {
+            //shapeFail();
+            shapeSuccess();
             return
           }
         }
@@ -885,25 +945,21 @@ const s = sk => {
     checkShapeSuccessCounter = 0;
     checkShapeFailCounter = 0;
     scene = "shapesuccess";
-    score = score + 5;
+
     console.log("score: " + score);
-    sk.clear();
 
-    sk.background(yellow);
-    sk.translate(- sk.width / 2, - sk.height / 2);
+    if (!isRoundDone) {
+      isRoundDone = true;
 
-    sk.imageMode(sk.CORNER);
-    sk.image(video, 0, 60);
+      socket.emit(`roundDone`, {
+        winner: myId,
+        loser: targetId
+      });
+
+      addScore(true);
+    }
 
     showScores();
-
-    sk.textSize(100);
-    sk.fill(0);
-    sk.text('+ 5', sk.width / 2, sk.height * 0.77);
-    //isResultRequired = true;
-    //setTimeout(shapeGive, 3000);
-
-    //stop video capture
   }
 
   const shapeFail = () => {
@@ -915,9 +971,6 @@ const s = sk => {
     sk.background(red);
     sk.translate(- sk.width / 2, - sk.height / 2);
 
-    sk.imageMode(sk.CORNER);
-    sk.image(video, 0, 60);
-
     sk.fill(red);
     sk.rectMode(sk.CORNER);
     sk.rect(0,60, sk.width, sk.height - 60);
@@ -926,10 +979,6 @@ const s = sk => {
     sk.text('Not quite right', sk.width / 2, sk.height / 2 + 30);
 
     showScores();
-    //isResultRequired = false;
-    setTimeout(shapeGiveSetup, 3000);
-
-    //stop video capture
   }
 
   sk.keyPressed = () => {
@@ -1026,6 +1075,10 @@ const s = sk => {
         trainingZone();
         backButtonPressed = false;
         //stop video capture
+      }
+
+      if (sk.mouseX > 100 && sk.mouseX < sk.width && sk.mouseY > 0 && sk.mouseY < sk.height * (1/3) ) {
+        save(knn, 'model.json');
       }
     }
 

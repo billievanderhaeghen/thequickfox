@@ -6,7 +6,7 @@ body {
 
 .code {
   position: fixed;
-  top: 52.4%;
+  top: 51.5%;
   width: 100%;
   text-align: center;
   font-family: Helvetica, Arial;
@@ -86,34 +86,3 @@ canvas {
   height: 7rem;
   justify-content: space-between;
 }
-
-/* h1 {
-  display: inline-block;
-  background: #012453;
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 1rem;
-}
-.code, .red { color: #d05b6d; }
-.green { color: #d0f2a6; }
-.orange { color: #df925e; }
-
-.bal {
-  position: absolute;
-  width: 1rem;
-  height: 1rem;
-  margin-left: -.5rem;
-  margin-right: -.5rem;
-  background: red;
-  border-radius: 50% 50%;
-  transition: top .1s, left .1s;
-  animation: leaves .8s ease-in-out infinite alternate;
-}
-@keyframes leaves {
-  0% {
-      transform: scale(.5);
-  }
-  100% {
-      transform: scale(2.0);
-  }
-} */
