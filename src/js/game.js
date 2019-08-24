@@ -68,7 +68,7 @@ let instructionsButtonPressed = false;
 let playAgainButtonPressed = false;
 let goToMenuButtonPressed = false;
 
-const socket = io('http://192.168.0.123:8081');
+const socket = io();
 
 
 const shapes = [
@@ -133,7 +133,7 @@ $submit.addEventListener("click", submitTargetId);
 const modelReady = () => {
   console.log('model ready!');
   // Comment back in to load your own model!
-  knn.load('./datasets/model.json', console.log('knn loaded'));
+  knn.load('./assets/datasets/model.json', console.log('knn loaded'));
 }
 
 const goClassify = () => {
@@ -474,7 +474,13 @@ const s = sk => {
     trainingDetail = detail;
     trainingDetailImg = sk.loadImage('assets/img/shapes/' + shapes[trainingDetail][0] + '.png');
 
-    video = sk.createCapture(sk.VIDEO);
+    //video = sk.createCapture(sk.VIDEO);
+    video = sk.createCapture({
+      audio: false,
+      video: {
+        facingMode: "environment"
+      }
+    });
     video.size(sk.width,sk.height);
     video.style("transform", "scale(-1,1)");
     video.hide();
@@ -647,8 +653,7 @@ const s = sk => {
     }
     //document.write(myId + " " + targetId);
     console.log(myId + " " + targetId);
-    //newRound();
-    gameOver();
+    newRound();
   })
 
   socket.on(`newRound`, (index) => {
@@ -904,13 +909,13 @@ const s = sk => {
     sk.clear();
     sk.fill(black);
 
-    // video = sk.createCapture({
-    //   audio: false,
-    //   video: {
-    //     facingMode: "environment"
-    //   }
-    // });
-    video = sk.createCapture(sk.VIDEO);
+    video = sk.createCapture({
+      audio: false,
+      video: {
+        facingMode: "environment"
+      }
+    });
+    //video = sk.createCapture(sk.VIDEO);
     video.size(sk.width,sk.height*0.6);
     video.style("transform", "scale(-1,1)");
     video.elt.setAttribute('playsinline', '');
@@ -972,7 +977,7 @@ const s = sk => {
           }
         } else {
           checkShapeFailCounter++;
-          if (checkShapeFailCounter > 30 ) {
+          if (checkShapeFailCounter > 60 ) {
             sk.clear();
             sk.background(red);
             sk.translate(- sk.width / 2, - sk.height / 2);
@@ -986,7 +991,7 @@ const s = sk => {
 
             showScores();
           }
-          if (checkShapeFailCounter > 31 ) {
+          if (checkShapeFailCounter > 61 ) {
             shapeFail();
           }
         }

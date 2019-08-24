@@ -19,23 +19,23 @@ module.exports = (env, { mode }) => {
   ];
 
   if (mode === "production") {
-    // const HtmlCriticalWebpackPlugin = require('html-critical-webpack-plugin');
-    // const path = require('path');
-    // plugins.push(
-    //   new HtmlCriticalWebpackPlugin({
-    //     base: path.resolve(__dirname, 'dist'),
-    //     src: 'index.html',
-    //     dest: 'index.html',
-    //     inline: true,
-    //     minify: true,
-    //     extract: true,
-    //     width: 1500, // standaard op 375x565, maar niet voldoende om op desktop 100% te scoren
-    //     height: 700,
-    //     penthouse: {
-    //       blockJSRequests: false
-    //     }
-    //   })
-    // );
+    const HtmlCriticalWebpackPlugin = require('html-critical-webpack-plugin');
+    const path = require('path');
+    plugins.push(
+      new HtmlCriticalWebpackPlugin({
+        base: path.resolve(__dirname, 'dist'),
+        src: 'index.html',
+        dest: 'index.html',
+        inline: true,
+        minify: true,
+        extract: true,
+        width: 1500, // standaard op 375x565, maar niet voldoende om op desktop 100% te scoren
+        height: 700,
+        penthouse: {
+          blockJSRequests: false
+        }
+      })
+    );
   } else {
     const webpack = require("webpack");
     plugins.push(new webpack.HotModuleReplacementPlugin());

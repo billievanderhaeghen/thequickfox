@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 8080;
 
 const io = require('socket.io')(server);
 let connectionUrl = '';
 
-app.use(`/`, express.static(`src`));
+app.use(`/`, express.static(__dirname));
 
 const users = {};
 
