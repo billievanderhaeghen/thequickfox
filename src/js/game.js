@@ -970,9 +970,8 @@ const s = sk => {
             sk.text('Not quite right', sk.width / 2, sk.height / 2 + 30);
 
             showScores();
-            return
           }
-          if (checkShapeFailCounter > 32) {
+          if (checkShapeFailCounter > 31 ) {
             shapeFail();
           }
         }
@@ -1007,7 +1006,7 @@ const s = sk => {
     scene = "shapefail";
     console.log("score: " + score);
 
-    //setTimeout(newRound, 1000);
+    setTimeout(shapeGive, 1500);
   }
 
   sk.keyPressed = () => {
