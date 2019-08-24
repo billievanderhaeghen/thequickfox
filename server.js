@@ -30,12 +30,8 @@ io.on('connection', socket => {
     console.log('targetId: ' + targetId);
     // send an update to that particular socket
     socket.to(targetId).emit('startGame', data.myId);
-    //socket.to(data.myId).emit('startGame', targetId);
   });
 
-  // socket.on('startGame', () => {
-  //   //some code code
-  // })
   socket.on('newRound', (index, targetId) => {
     // if the target user does not exist, ignore it
     console.log('index: ' + index);
@@ -57,6 +53,17 @@ io.on('connection', socket => {
     // send an update to that particular socket
     socket.to(ids.winner).emit('roundDone', true);
     socket.to(ids.loser).emit('roundDone', false);
+  });
+
+  socket.on('updateScore', (score, targetId) =>{
+    // if the target user does not exist, ignore it
+    console.log("score: " + score);
+    if (!users[targetId]) {
+      return;
+    }
+    console.log("score: " + score);
+    // send an update to that particular socket
+    socket.to(targetId).emit('updateScore', score);
   });
 
   socket.on('disconnect', () => {

@@ -40,6 +40,7 @@ let finishedButton;
 let checkShapeSuccessCounter;
 let checkShapeFailCounter;
 
+
 let trainingDetail;
 let trainingDetailImg;
 
@@ -72,28 +73,28 @@ const socket = io('http://192.168.0.123:8081');
 
 const shapes = [
   ["t-shirt", "t-shirt"],
-  ["heart", "heart"],
-  ["elephant", "elephant"],
-  ["quick-fox", "quick fox"],
+  // ["heart", "heart"],
+  // ["elephant", "elephant"],
+  // ["quick-fox", "quick fox"],
   //["unicorn", "unicorn"],
-  ["ice-cream", "ice cream"],
-  ["crab", "crab"],
-  ["killer-whale", "killer whale"],
-  ["bird", "bird"],
-  ["rectangle", "rectangle"],
+  // ["ice-cream", "ice cream"],
+  // ["crab", "crab"],
+  // ["killer-whale", "killer whale"],
+  // ["bird", "bird"],
+  // ["rectangle", "rectangle"],
   //["walrus", "walrus"],
   //["ninja-star", "ninja star"],
   //["fish", "fish"],
-  ["owl", "owl"],
+  // ["owl", "owl"],
   //["x", "x"],
   //["jiggly-worm", "jiggly worm"],
   //["mouse", "mouse"],
   //["penguin", "penguin"],
   //["snake", "snake"],
   //["v", "v"],
-  ["lazy-dog", "lazy dog"],
+  // ["lazy-dog", "lazy dog"],
   //["airplane", "airplane"],
-  ["zen-triangle", "zen triangle"],
+  // ["zen-triangle", "zen triangle"],
   //["yacht", "yacht"],
   //["dinosaur", "dinosaur"]
   //["other-fish", "other fish"],
@@ -108,6 +109,7 @@ let isHost = false;
 let isRoundDone = false;
 let isCodeDeleted = false;
 let isFieldDeleted = false;
+let isShowInstructionsPressed = false;
 
 const $input = document.createElement('input');
 const $submit = document.createElement('input');
@@ -651,6 +653,17 @@ const s = sk => {
     shapeGiveSetup(index);
   })
 
+  socket.on(`updateScore`, (otherScore) => {
+    opponentScore = otherScore
+    isShowInstructionsPressed = false;
+    console.log("otherScore " + otherScore);
+    // console.log("id " + id);
+    // if (myId === id) {
+    //   opponentScore = otherScore;
+    //   isShowInstructionsPressed = false;
+    // }
+  })
+
   socket.on(`roundDone`, isWinner => {
     addScore(isWinner);
   });
@@ -663,23 +676,15 @@ const s = sk => {
     } else {
       opponentScore = opponentScore + 5;
     }
-    checkForGameover();
+    newRound();
   };
 
   const checkForGameover = () => {
-    let maxScore = 5;
-    if (score < maxScore || opponentScore < maxScore) {
-      newRound();
-    } else {
-      console.log("game over");
+    let maxScore = 10;
+
+    if (score >= maxScore || opponentScore >= maxScore){
       gameOver();
     }
-
-    // if (score >= maxScore || opponentScore >= maxScore){
-    //   gameOver();
-    // } else {
-    //
-    // }
   };
 
   const generateNumberForShape = () => Math.floor(Math.random() * shapes.length);
@@ -796,28 +801,51 @@ const s = sk => {
     sk.rectMode(sk.CENTER);
     sk.textFont(circularBold);
     sk.noStroke();
-    if (!instructionsButtonPressed) {
-      sk.fill(255);
+    if (score < 2) {
+      sk.fill(gray);
       sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
       sk.fill(black);
       sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
-      sk.fill(yellow);
+      sk.fill(darkGray);
       sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+
+      sk.fill(255);
+      sk.text("SHOW INSTRUCTIONS", sk.width / 2, sk.height - (sk.height / 16) + 7);
+      sk.textSize(15);
+      sk.text("- 2", sk.width * 0.88, sk.height - (sk.height / 16) - 15);
     } else {
-      sk.fill(yellow);
-      sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
-      sk.fill(black);
-      sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
-      sk.fill(255);
-      sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+      if (!instructionsButtonPressed) {
+        sk.fill(255);
+        sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+        sk.fill(black);
+        sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
+        sk.fill(yellow);
+        sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+      } else {
+        sk.fill(yellow);
+        sk.rect(sk.width / 2, sk.height - (sk.height / 16), sk.width * 0.9, 60);
+        sk.fill(black);
+        sk.triangle(sk.width,sk.height - (sk.height / 16) - 35, sk.width,sk.height - (sk.height / 16) + 60, sk.width * 0.8,sk.height - (sk.height / 16) - 35);
+        sk.fill(255);
+        sk.triangle(sk.width * 0.97, sk.height - (sk.height / 16) - 30, sk.width * 0.873, sk.height - (sk.height / 16), sk.width * 0.8,sk.height - (sk.height / 16) - 30);
+      }
+      sk.fill(0);
+      sk.text("SHOW INSTRUCTIONS", sk.width / 2, sk.height - (sk.height / 16) + 7);
+      sk.textSize(15);
+      sk.text("- 2", sk.width * 0.88, sk.height - (sk.height / 16) - 15);
     }
-    sk.fill(0);
-    sk.text("SHOW INSTRUCTIONS", sk.width / 2, sk.height - (sk.height / 16) + 7);
-    sk.textSize(15);
-    sk.text("- 2", sk.width * 0.88, sk.height - (sk.height / 16) - 15);
 
 
   };
+
+  const shapeGiveInstructionsSetup = () => {
+    score = score - 2;
+    if (!isShowInstructionsPressed) {
+      isShowInstructionsPressed = true;
+      socket.emit(`updateScore`, score, targetId);
+    }
+    scene = "shapegiveinstructions";
+  }
 
   const shapeGiveInstructions = () => {
 
@@ -923,18 +951,29 @@ const s = sk => {
               sk.text('+ 5', sk.width / 2, sk.height / 2 + 30);
               checkShapeFailCounter = 0;
             }
-            if (checkShapeSuccessCounter > 40) {
+            if (checkShapeSuccessCounter > 32) {
               shapeSuccess();
             }
-            //return
           }
         } else {
           checkShapeFailCounter++;
-          console.log(checkShapeFailCounter);
           if (checkShapeFailCounter > 30 ) {
-            //shapeFail();
-            shapeSuccess();
+            sk.clear();
+            sk.background(red);
+            sk.translate(- sk.width / 2, - sk.height / 2);
+
+            sk.fill(red);
+            sk.rectMode(sk.CORNER);
+            sk.rect(0,60, sk.width, sk.height - 60);
+            sk.textSize(30);
+            sk.fill('#ffffff');
+            sk.text('Not quite right', sk.width / 2, sk.height / 2 + 30);
+
+            showScores();
             return
+          }
+          if (checkShapeFailCounter > 32) {
+            shapeFail();
           }
         }
       }
@@ -967,18 +1006,8 @@ const s = sk => {
     checkShapeFailCounter = 0;
     scene = "shapefail";
     console.log("score: " + score);
-    sk.clear();
-    sk.background(red);
-    sk.translate(- sk.width / 2, - sk.height / 2);
 
-    sk.fill(red);
-    sk.rectMode(sk.CORNER);
-    sk.rect(0,60, sk.width, sk.height - 60);
-    sk.textSize(30);
-    sk.fill('#ffffff');
-    sk.text('Not quite right', sk.width / 2, sk.height / 2 + 30);
-
-    showScores();
+    //setTimeout(newRound, 1000);
   }
 
   sk.keyPressed = () => {
@@ -1065,8 +1094,10 @@ const s = sk => {
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
         sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
-        instructionsButtonPressed = false;
-        scene = "shapegiveinstructions";
+        if (score > 2 || score == 2) {
+          instructionsButtonPressed = false;
+          shapeGiveInstructionsSetup();
+        }
       }
     }
 
@@ -1158,7 +1189,9 @@ const s = sk => {
       }
 
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
-        instructionsButtonPressed = true;
+        if (score > 2 || score == 2) {
+          instructionsButtonPressed = true;
+        }
       }
 
     }
@@ -1220,6 +1253,7 @@ const s = sk => {
     // if(!randomNumberGenerated) {
     //   generateNumberForShape();
     // }
+    checkForGameover();
 
     if (scene === "startgame") {
       startGame();
