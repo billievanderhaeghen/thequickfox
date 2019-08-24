@@ -54,8 +54,8 @@ let darkGray;
 let lightGray;
 
 let scene;
-let score;
-let opponentScore;
+let score = 5;
+let opponentScore = 5;
 
 let randomNumberGenerated = false;
 let trainButtonPressed= false;
@@ -231,8 +231,8 @@ const s = sk => {
       lightGray = '#706E70';
 
       //scene = "shapegive";
-      score = 0;
-      opponentScore = 0;
+      // score = 5;
+      // opponentScore = 5;
 
       //set lines in comment to get a random shape
       // requiredArray = shapes[3];
@@ -381,14 +381,16 @@ const s = sk => {
     sk.text('GO TO MENU', sk.width / 2, sk.height - (sk.height / 16) + 7);
 
     //play again button
-    if (!playAgainButtonPressed) {
-      sk.fill(yellow);
-    } else {
-      sk.fill((255));
+    if (isHost) {
+      if (!playAgainButtonPressed) {
+        sk.fill(yellow);
+      } else {
+        sk.fill((255));
+      }
+      sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
+      sk.fill(0)
+      sk.text('PLAY AGAIN', sk.width / 2, sk.height - (sk.height / 16) - 78);
     }
-    sk.rect(sk.width / 2, sk.height - (sk.height / 16) - 85, sk.width * 0.9, 60);
-    sk.fill(0)
-    sk.text('PLAY AGAIN', sk.width / 2, sk.height - (sk.height / 16) - 78);
 
     sk.noStroke();
     showScores();
@@ -654,14 +656,14 @@ const s = sk => {
   })
 
   socket.on(`updateScore`, (otherScore) => {
-    opponentScore = otherScore
-    isShowInstructionsPressed = false;
-    console.log("otherScore " + otherScore);
-    // console.log("id " + id);
-    // if (myId === id) {
-    //   opponentScore = otherScore;
-    //   isShowInstructionsPressed = false;
-    // }
+    if (isShowInstructionsPressed) {
+      opponentScore = otherScore;
+      isShowInstructionsPressed = false;
+    } else {
+      // reset score if play again
+      score = otherScore;
+      opponentScore = otherScore;
+    }
   })
 
   socket.on(`roundDone`, isWinner => {
@@ -690,6 +692,14 @@ const s = sk => {
   const generateNumberForShape = () => Math.floor(Math.random() * shapes.length);
 
   const newRound = () => {
+    console.log(playAgainButtonPressed);
+    if (playAgainButtonPressed) {
+      score = 0;
+      opponentScore = 0;
+      console.log(score + " " + opponentScore);
+      socket.emit(`updateScore`, score, targetId);
+      playAgainButtonPressed = false;
+    }
     if (isHost) {
       isRoundDone = false;
       const index = generateNumberForShape();
@@ -1034,7 +1044,11 @@ const s = sk => {
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
         sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
-        playAgainButtonPressed = false;
+        playAgainButtonPressed = true;
+        console.log(playAgainButtonPressed);
+        // score = 0;
+        // opponentScore = 0;
+        setTimeout(newRound, 1000);
       }
 
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
@@ -1143,11 +1157,13 @@ const s = sk => {
   sk.touchStarted = () => {
 
     if (scene === "gameover") {
+
       if(sk.mouseX > sk.width * 0.1 &&
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > sk.height - (sk.height / 16) - 85 - 30 &&
         sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
-        playAgainButtonPressed = true;
+          playAgainButtonPressed = true;
+          console.log(playAgainButtonPressed);
       }
 
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
