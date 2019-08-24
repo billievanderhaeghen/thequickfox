@@ -68,6 +68,7 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     console.log('client disconnected');
+    console.log(users[socket.id]);
     delete users[socket.id];
   });
 });

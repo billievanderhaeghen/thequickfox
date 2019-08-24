@@ -647,7 +647,8 @@ const s = sk => {
     }
     //document.write(myId + " " + targetId);
     console.log(myId + " " + targetId);
-    newRound();
+    //newRound();
+    gameOver();
   })
 
   socket.on(`newRound`, (index) => {
@@ -669,6 +670,10 @@ const s = sk => {
   socket.on(`roundDone`, isWinner => {
     addScore(isWinner);
   });
+
+  socket.on(`disconnect`, () => {
+    console.log("disconnected");
+  })
 
   const addScore = isWinner => {
     isRoundDone = true;
@@ -1053,6 +1058,7 @@ const s = sk => {
 
       if(sk.mouseX > sk.width * 0.1 && sk.mouseX < sk.width * 0.9 && sk.mouseY > (sk.height - (sk.height / 16) - 30) && sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
         goToMenuButtonPressed = false;
+        socket.emit(`disconnect`);
         setTimeout(gameMenu, 200);
       }
 
