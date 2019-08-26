@@ -17,27 +17,29 @@ body {
 .gameintro {
   position: fixed;
   z-index: 10;
-  top: 32%;
-  padding-left: 7.5%;
+  top: 31%;
+  padding-left: 5%;
   color: white;
   font-family: Helvetica;
-  width: 85%;
+  width: 90%;
   text-align: center;
 }
 
 #p5_loading {
-  color:  #332B33;
+  color: #332B33;
   background-color: #332B33;
   position: fixed;
   width: 100%;
   height: 100%;
+  top: 0%;
+  left: 0%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .loadingImg {
-  top: 50%;
+  transform-origin: center;
 }
 
 span {

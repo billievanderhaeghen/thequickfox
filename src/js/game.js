@@ -54,8 +54,8 @@ let darkGray;
 let lightGray;
 
 let scene;
-let score = 5;
-let opponentScore = 5;
+let score = 0;
+let opponentScore = 0;
 
 let randomNumberGenerated = false;
 let trainButtonPressed= false;
@@ -68,33 +68,36 @@ let instructionsButtonPressed = false;
 let playAgainButtonPressed = false;
 let goToMenuButtonPressed = false;
 
-const socket = io();
+// development
+const socket = io('http://192.168.0.131:8081');
 
+// production
+// const socket = io('');
 
 const shapes = [
   ["t-shirt", "t-shirt"],
-  // ["heart", "heart"],
-  // ["elephant", "elephant"],
-  // ["quick-fox", "quick fox"],
+  ["heart", "heart"],
+  ["elephant", "elephant"],
+  ["quick-fox", "quick fox"],
   //["unicorn", "unicorn"],
-  // ["ice-cream", "ice cream"],
-  // ["crab", "crab"],
-  // ["killer-whale", "killer whale"],
-  // ["bird", "bird"],
-  // ["rectangle", "rectangle"],
+  ["ice-cream", "ice cream"],
+  ["crab", "crab"],
+  ["killer-whale", "killer whale"],
+  ["bird", "bird"],
+  ["rectangle", "rectangle"],
   //["walrus", "walrus"],
   //["ninja-star", "ninja star"],
   //["fish", "fish"],
-  // ["owl", "owl"],
+  ["owl", "owl"],
   //["x", "x"],
   //["jiggly-worm", "jiggly worm"],
   //["mouse", "mouse"],
   //["penguin", "penguin"],
   //["snake", "snake"],
   //["v", "v"],
-  // ["lazy-dog", "lazy dog"],
+  ["lazy-dog", "lazy dog"],
   //["airplane", "airplane"],
-  // ["zen-triangle", "zen triangle"],
+  ["zen-triangle", "zen triangle"],
   //["yacht", "yacht"],
   //["dinosaur", "dinosaur"]
   //["other-fish", "other fish"],
@@ -195,8 +198,9 @@ const s = sk => {
     $loadingImg.setAttribute('src', 'assets/img/loader.gif');
     $loadingImg.setAttribute('alt', 'loading');
     $loadingImg.setAttribute('class', 'loadingimg');
-    $loadingImg.setAttribute('width', '400');
-    $loadingImg.setAttribute('height', '400');
+    $loadingImg.setAttribute('width', '340');
+    $loadingImg.setAttribute('height', '255');
+    $p5Loading.innerHTML = "";
     $p5Loading.appendChild($loadingImg);
     console.log($p5Loading);
 
@@ -231,27 +235,24 @@ const s = sk => {
       lightGray = '#706E70';
 
       //scene = "shapegive";
-      // score = 5;
-      // opponentScore = 5;
 
       //set lines in comment to get a random shape
       // requiredArray = shapes[3];
       // required = requiredArray[1];
       // requiredUrl = 'assets/img/shapes/' + requiredArray[0] + '.png';
 
-      scene = "gamemenu";
-
+      //scene = "gamemenu";
+      gameMenuSetup();
       features = ml5.featureExtractor('MobileNet', modelReady);
       knn = ml5.KNNClassifier();
-
-      $gameIntro.innerHTML = "A multiplayer <span>mobile</span> game controlled by your <span>camera</span> and your abilities to make <span>origami</span>. Grab a friend, some <span>white square paper</span>, and a pen, and try to be faster than your opponent or you’ll be <span>the lazy dog</span>."
-      $gameIntro.setAttribute('class', 'gameintro');
-      //$body.appendChild($gameIntro);
 
   };
 
   const gameMenuSetup = () => {
-
+    $gameIntro.innerHTML = "A Firefox multiplayer <span>mobile</span> game controlled by your <span>camera</span> and your abilities to make <span>origami</span>. Grab a friend, some <span>white square paper</span>, and a pen (a non white surface is also recommended). The first player with 26 points is crowned the title of <span>the quick fox</span>."
+    $gameIntro.setAttribute('class', 'gameintro');
+    $body.appendChild($gameIntro);
+    scene = "gamemenu";
   }
 
   const gameMenu = () => {
@@ -692,7 +693,7 @@ const s = sk => {
   };
 
   const checkForGameover = () => {
-    let maxScore = 10;
+    let maxScore = 26;
 
     if (score >= maxScore || opponentScore >= maxScore){
       gameOver();
@@ -925,7 +926,7 @@ const s = sk => {
 
   const shapeCheck = () => {
     sk.clear();
-    sk.background(black);
+    //sk.background(black);
 
     sk.translate(0, 0);
 
@@ -958,26 +959,24 @@ const s = sk => {
         if (label === required) {
           checkShapeSuccessCounter++;
           console.log(checkShapeSuccessCounter);
-          if (checkShapeSuccessCounter > 1) {
-            if (checkShapeSuccessCounter > 30) {
-              sk.background(yellow);
-              sk.translate(- sk.width / 2, - sk.height / 2);
+          if (checkShapeSuccessCounter > 15) {
+            sk.background(yellow);
+            sk.translate(- sk.width / 2, - sk.height / 2);
 
-              sk.fill(yellow);
-              sk.rectMode(sk.CORNER);
-              sk.rect(0,60, sk.width, sk.height - 60);
-              sk.textSize(100);
-              sk.fill('#ffffff');
-              sk.text('+ 5', sk.width / 2, sk.height / 2 + 30);
-              checkShapeFailCounter = 0;
-            }
-            if (checkShapeSuccessCounter > 32) {
-              shapeSuccess();
-            }
+            sk.fill(yellow);
+            sk.rectMode(sk.CORNER);
+            sk.rect(0,60, sk.width, sk.height - 60);
+            sk.textSize(100);
+            sk.fill('#ffffff');
+            sk.text('+ 5', sk.width / 2, sk.height / 2 + 30);
+            checkShapeFailCounter = 0;
+          }
+          if (checkShapeSuccessCounter > 20) {
+            shapeSuccess();
           }
         } else {
           checkShapeFailCounter++;
-          if (checkShapeFailCounter > 60 ) {
+          if (checkShapeFailCounter > 40 ) {
             sk.clear();
             sk.background(red);
             sk.translate(- sk.width / 2, - sk.height / 2);
@@ -991,7 +990,7 @@ const s = sk => {
 
             showScores();
           }
-          if (checkShapeFailCounter > 61 ) {
+          if (checkShapeFailCounter > 43 ) {
             shapeFail();
           }
         }
@@ -1017,7 +1016,7 @@ const s = sk => {
       addScore(true);
     }
 
-    showScores();
+    //showScores();
   }
 
   const shapeFail = () => {
@@ -1074,6 +1073,7 @@ const s = sk => {
         sk.mouseX < sk.width * 0.9 &&
         sk.mouseY > (sk.height - (sk.height / 16) - 30) &&
         sk.mouseY < (sk.height - (sk.height / 16) + 30) ){
+        $body.removeChild($gameIntro);
         setTimeout(trainingZone(), 1000);
         trainZoneButtonPressed = false;
       }
@@ -1084,6 +1084,7 @@ const s = sk => {
         sk.mouseY < sk.height - (sk.height / 16) - 140 ){
         startGameButtonPressed = false;
         //shapeGiveSetup();
+        $body.removeChild($gameIntro);
         startGameSetup();
         isHost = true;
         console.log("i am host");
@@ -1097,6 +1098,7 @@ const s = sk => {
         sk.mouseY < sk.height - (sk.height / 16) - 85 + 30){
         joinGameButtonPressed = false;
         console.log("join");
+        $body.removeChild($gameIntro);
         joinGameSetup();
       }
     }
@@ -1139,14 +1141,14 @@ const s = sk => {
 
     if (scene === "trainingzone") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        gameMenu();
+        gameMenuSetup();
         backButtonPressed = false;
       }
     }
 
     if (scene === "startgame") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        gameMenu();
+        gameMenuSetup();
         backButtonPressed = false;
         $body.removeChild($code);
         //host is false
@@ -1156,7 +1158,7 @@ const s = sk => {
 
     if (scene === "joingame") {
       if (sk.mouseX > 0 && sk.mouseX < 90 && sk.mouseY > 40 && sk.mouseY < 100) {
-        gameMenu();
+        gameMenuSetup();
         backButtonPressed = false;
         $body.removeChild($field);
       }
