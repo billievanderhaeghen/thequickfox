@@ -69,7 +69,7 @@ let playAgainButtonPressed = false;
 let goToMenuButtonPressed = false;
 
 // development
-const socket = io('http://192.168.0.131:8081');
+const socket = io('http://192.168.1.42:8081');
 
 // production
 // const socket = io('');
