@@ -104,6 +104,33 @@ const shapes = [
   //["gentle-cactus", "gentle cactus"]
 ];
 
+const trainingShapes = [
+  ["t-shirt", "t-shirt"],
+  ["heart", "heart"],
+  ["elephant", "elephant"],
+  ["quick-fox", "quick fox"],
+  ["unicorn", "unicorn"],
+  ["ice-cream", "ice cream"],
+  ["crab", "crab"],
+  ["killer-whale", "killer whale"],
+  ["bird", "bird"],
+  ["rectangle", "rectangle"],
+  ["walrus", "walrus"],
+  ["ninja-star", "ninja star"],
+  ["fish", "fish"],
+  ["owl", "owl"],
+  ["x", "x"],
+  ["jiggly-worm", "jiggly worm"],
+  ["mouse", "mouse"],
+  ["penguin", "penguin"],
+  ["snake", "snake"],
+  ["v", "v"],
+  ["lazy-dog", "lazy dog"],
+  ["airplane", "airplane"],
+  ["zen-triangle", "zen triangle"],
+  ["yacht", "yacht"]
+];
+
 
 let myId = "";
 let targetId = false;
@@ -406,7 +433,7 @@ const s = sk => {
 
   const trainingZone = () => {
     scene = "trainingzone";
-    sk.resizeCanvas(window.innerWidth, window.innerHeight * 1.5);
+    sk.resizeCanvas(window.innerWidth, window.innerHeight * 2);
     sk.clear();
     sk.background(black);
 
@@ -416,23 +443,24 @@ const s = sk => {
     sk.imageMode(sk.CENTER);
     // 1/4th of innerHeight
     //sk.loadImage(logo, img => {sk.image(img, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)});
-    sk.image(logo, sk.width / 2, sk.height / 6, sk.width * 0.8, sk.width * 0.08)
+    sk.image(logo, sk.width / 2, sk.height / 8, sk.width * 0.8, sk.width * 0.08)
     // 1/8th of innerHeight
-    sk.image(qImg, sk.width / 2, sk.height / 12, sk.width * 0.35, sk.width * 0.35)
+    sk.image(qImg, sk.width / 2, sk.height / 16, sk.width * 0.35, sk.width * 0.35)
 
     sk.textAlign(sk.CENTER);
     sk.textFont(circularBold);
     sk.textSize(25);
     sk.fill(yellow);
     // 0.3105 of innerHeight
-    sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.22);
+    sk.text('TRAINING ZONE', sk.width / 2, sk.height * 0.1653);
 
     backButton();
 
     //show all shapes
-    for (var i = 0; i < shapes.length; i++) {
-      trainListImages[i] = 'assets/img/shapes/' + shapes[i][0] + '.png';
+    for (var i = 0; i < trainingShapes.length; i++) {
+      trainListImages[i] = 'assets/img/shapes/' + trainingShapes[i][0] + '.png';
 
+      console.log(trainListImages);
       sk.fill(gray);
       sk.noStroke();
       sk.rectMode(sk.CENTER);
@@ -440,9 +468,9 @@ const s = sk => {
       let remainder = i%3;
       let divided = i / 3;
       let shapeSize = sk.width / 4;
-      let border = sk.width / 16;
+      let border = sk.width / 24;
       let xPos = sk.width * (1/5 + (1.5/5 * remainder));
-      let yPos = (sk.height * 0.3) + ((shapeSize + border) * Math.floor(divided));
+      let yPos = (sk.height * 0.23) + ((shapeSize + border) * Math.floor(divided));
 
       let trainShape = sk.rect(xPos, yPos, shapeSize, shapeSize);
       let trainImage = sk.loadImage(trainListImages[i], img => {sk.image(img, xPos, yPos, shapeSize, shapeSize)});
@@ -1256,9 +1284,9 @@ const s = sk => {
         let remainder = i%3;
         let divided = i / 3;
         let shapeSize = sk.width / 4;
-        let border = sk.width / 16;
+        let border = sk.width / 24;
         let xPos = sk.width * (1/5 + (1.5/5 * remainder));
-        let yPos = (sk.height * 0.3) + ((shapeSize + border) * Math.floor(divided));
+        let yPos = (sk.height * 0.23) + ((shapeSize + border) * Math.floor(divided));
 
         //check if mouseposition is on shape
         if (
