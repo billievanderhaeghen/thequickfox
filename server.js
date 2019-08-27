@@ -70,6 +70,17 @@ io.on('connection', socket => {
     socket.to(targetId).emit('updateScore', score);
   });
 
+  socket.on('resetScore', (score, targetId) =>{
+    // if the target user does not exist, ignore it
+    console.log("score: " + score);
+    if (!users[targetId]) {
+      return;
+    }
+    console.log("score: " + score);
+    // send an update to that particular socket
+    socket.to(targetId).emit('resetScore', score);
+  });
+
   socket.on('disconnect', () => {
     console.log('client disconnected');
     console.log(users[socket.id]);

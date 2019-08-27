@@ -663,14 +663,17 @@ const s = sk => {
   })
 
   socket.on(`updateScore`, (otherScore) => {
-    if (isShowInstructionsPressed) {
-      opponentScore = otherScore;
-      isShowInstructionsPressed = false;
-    } else {
-      // reset score if play again
-      score = otherScore;
-      opponentScore = otherScore;
-    }
+    // if (isShowInstructionsPressed) {
+    //   opponentScore = otherScore;
+    //   isShowInstructionsPressed = false;
+    // }
+    opponentScore = otherScore;
+    isShowInstructionsPressed = false;
+  })
+
+  socket.on(`resetScore`, (otherScore) => {
+    score = otherScore;
+    opponentScore = otherScore;
   })
 
   socket.on(`roundDone`, isWinner => {
@@ -708,7 +711,7 @@ const s = sk => {
       score = 0;
       opponentScore = 0;
       console.log(score + " " + opponentScore);
-      socket.emit(`updateScore`, score, targetId);
+      socket.emit(`resetScore`, score, targetId);
       playAgainButtonPressed = false;
     }
     if (isHost) {
